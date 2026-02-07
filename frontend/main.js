@@ -4,7 +4,7 @@
 
 const routes = {
     '#home': 'pages/Accueil.html',
-    '#login': 'pages/connexion.html',
+    '#login': 'pages/inscription.html',
     '#register': 'pages/inscription.html',
     '#map': 'pages/carte.html',
     '#profile': 'pages/profil.html',
@@ -75,7 +75,7 @@ function executeScripts(container) {
 }
 
 async function handleNavigation() {
-    const hash = window.location.hash || '#login';
+    const hash = window.location.hash || '#home';
     const path = routes[hash] || routes['#home'];
 
     // UI Feedback: Loading

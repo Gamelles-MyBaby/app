@@ -178,6 +178,13 @@
     btnLogin.onclick = () => toggle('login');
     regCancel.onclick = () => toggle('login');
 
+    // Handle initial state based on hash
+    if (window.location.hash === '#register') {
+      toggle('register');
+    } else {
+      toggle('login');
+    }
+
     loginForm.onsubmit = async (e) => {
       e.preventDefault();
       loginErr.textContent = '';
