@@ -39,12 +39,18 @@ const matchController = {
     createMatch: async (req, res) => {
         try {
             const matchData = req.body;
-            // TODO: Ajouter validation des données (ex: id_joueur1 != id_joueur2)
+            console.log('--- Incoming Create Match Request ---');
+            console.log('Data:', JSON.stringify(matchData, null, 2));
+
             const newMatch = await matchService.createMatch(matchData);
+            console.log('✅ Match created:', newMatch.id_match);
             res.status(201).json(newMatch);
         } catch (error) {
-            console.error('Erreur création match:', error);
-            res.status(400).json({ message: error.message });
+            console.error('❌ Erreur création match:', error.message);
+            res.status(400).json({
+                message: error.message,
+                details: "Veuillez vérifier que tous les champs sont valides (Joueurs, Lieu, Date/Heure)."
+            });
         }
     },
 
@@ -58,6 +64,20 @@ const matchController = {
             res.status(200).json(result);
         } catch (error) {
             console.error('Erreur validation match:', error);
+            res.status(400).json({ message: error.message });
+        }
+    },
+    /**
+     * Mettre à jour le statut d'un match (Accepté/Refusé/Annulé)
+     */
+    updateStatus: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            const result = await matchService.updateStatus(id, status);
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erreur mise à jour statut match:', error);
             res.status(400).json({ message: error.message });
         }
     }

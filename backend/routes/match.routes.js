@@ -4,8 +4,9 @@ const router = express.Router();
 const matchController = require("../controllers/match.controller");
 
 router.post("/", matchController.createMatch);
-router.get("/", matchController.getAllMatches);
+router.get("/", matchController.getAllMatchs);
 router.get("/:id", matchController.getMatchById);
-router.put("/:id/result", matchController.updateResult);
+router.put("/:id/result", matchController.validateMatch);
+router.put("/:id/status", matchController.updateStatus);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require('../db');
 
 /**
  * Service pour gérer les babyfoots, lieux et modèles via PostgreSQL
@@ -95,7 +95,7 @@ const babyfootService = {
                 b.prix, 
                 b.nombre,
                 m.id_modele, m.nom_modele, m.marque, m.taille, m.matière, m.couleur,
-                l.id_lieu, l.nom_lieu, l.adresse, l.ville, l.code_postal
+                l.id_lieu, l.nom_lieu, l.adresse, l.ville, l.code_postal, l.xcoord, l.ycoord, l.id_utilisateur
             FROM Babyfoots b
             JOIN Modeles m ON b.id_modele = m.id_modele
             JOIN Lieux l ON b.id_lieu = l.id_lieu
@@ -146,6 +146,26 @@ const babyfootService = {
      * Ajoute un babyfoot dans un lieu
      */
     createBabyfoot: async (data) => {
+        let lieuId = data.id_lieu;
+
+        // Si pas d'ID de lieu fourni, on tente de le créer (formulaire d'ajout rapide)
+        if (!lieuId && data.nom_lieu) {
+            const newLieu = await babyfootService.createLieu({
+                nom_lieu: data.nom_lieu,
+                adresse: data.adresse,
+                ville: data.ville,
+                code_postal: data.code_postal || null,
+                id_utilisateur: data.id_utilisateur,
+                xcoord: data.xcoord,
+                ycoord: data.ycoord
+            });
+            lieuId = newLieu.id_lieu;
+        }
+
+        if (!lieuId) {
+            throw new Error("L'ID du lieu ou les informations de création du lieu sont manquantes.");
+        }
+
         const query = `
             INSERT INTO Babyfoots (id_modele, id_lieu, prix, nombre)
             VALUES ($1, $2, $3, $4)
@@ -153,7 +173,7 @@ const babyfootService = {
         `;
         const values = [
             data.id_modele,
-            data.id_lieu,
+            lieuId,
             data.prix || 'Gratuit',
             data.nombre || 1
         ];
