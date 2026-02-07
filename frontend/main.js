@@ -75,7 +75,7 @@ function executeScripts(container) {
 }
 
 async function handleNavigation() {
-    const hash = window.location.hash || '#home';
+    const hash = window.location.hash || '#register';
     const path = routes[hash] || routes['#home'];
 
     // UI Feedback: Loading
