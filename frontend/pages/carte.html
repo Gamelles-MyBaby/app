@@ -23,7 +23,7 @@
         <span>Babyfoot</span>
       </div>
       <div class="legend-item">
-        <div style="width:14px; height:2px; background:#d90b0b; border:1px dashed #d90b0b"></div>
+        <div style="width:14px; height:2px; background:#BC1515; border:1px dashed #BC1515"></div>
         <span>Arrondissement</span>
       </div>
       <div class="legend-item">
@@ -123,7 +123,7 @@
     let allLieux = [];
     const markerGroup = L.layerGroup().addTo(map);
     const stationGroup = L.layerGroup().addTo(map);
-    const ardtLayer = L.geoJSON(null, { style: { color: '#ff00ff', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
+    const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
 
     async function fetchGeoJSON(baseUrl) {
       try {
