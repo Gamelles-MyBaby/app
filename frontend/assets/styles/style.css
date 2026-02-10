@@ -221,6 +221,7 @@ body.fullscreen-page #footer {
     gap: 8px;
     border-bottom: 2px solid var(--bordeaux);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1100;
   }
 
   nav.show {
