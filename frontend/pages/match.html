@@ -108,6 +108,28 @@
     text-align: center;
     color: #999;
   }
+
+  @media (max-width: 768px) {
+    .match-layout {
+      flex-direction: column;
+    }
+
+    .match-sidebar {
+      width: 100%;
+    }
+
+    .tabs-vertical {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .tab-v {
+      flex: 1;
+      text-align: center;
+      padding: 10px 5px;
+      font-size: 0.85rem;
+    }
+  }
 </style>
 
 <script type="module">
