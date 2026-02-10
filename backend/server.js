@@ -11,6 +11,7 @@ const eventRoutes = require('./routes/event.routes');
 const matchRoutes = require('./routes/match.routes');
 const userRoutes = require('./routes/user.routes');
 const rankingRoutes = require('./routes/ranking.routes');
+const mapRoutes = require('./routes/map.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ranking', rankingRoutes);
+app.use('/api/map', mapRoutes);
 
 // Route de base pour test
 app.get('/', (req, res) => {
