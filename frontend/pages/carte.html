@@ -103,7 +103,7 @@
     }
 
     const map = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 12);
-    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
     const babyfootIcon = L.icon({
