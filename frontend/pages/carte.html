@@ -8,44 +8,35 @@
       <h2 style="margin:0; font-weight:800; color:var(--rouge)">📍 Lieux Proches</h2>
       <div id="activeFilter" style="font-size:0.8rem; color:#666; margin-top:4px">Tous les arrondissements</div>
     </div>
-</div>
-<div id="lieuxList" class="lieux-list">
-  <div class="loader-sm">Chargement...</div>
-</div>
-</aside>
-
-<style>
-  .babyfoot-icon {
-    border-radius: 50%;
-    background: transparent !important;
-    border: none !important;
-  }
-</style>
-
-<div class="map-wrap">
-  <div id="map" aria-label="Carte des babyfoots"></div>
-
-  <div class="legend" id="mapLegend">
-    <strong>Légende</strong>
-    <div class="legend-item">
-      <img src="assets/icones/soccer-ball_26bd.png" style="width:18px; height:18px">
-      <span>Babyfoot</span>
+    <div id="lieuxList" class="lieux-list">
+      <div class="loader-sm">Chargement...</div>
     </div>
-    <div class="legend-item">
-      <div style="width:14px; height:2px; background:#BC1515; border:1px dashed #BC1515"></div>
-      <span>Arrondissement</span>
+  </aside>
+
+  <div class="map-wrap">
+    <div id="map" aria-label="Carte des babyfoots"></div>
+
+    <div class="legend" id="mapLegend">
+      <strong>Légende</strong>
+      <div class="legend-item">
+        <img src="assets/icones/soccer-ball_26bd.png" style="width:18px; height:18px">
+        <span>Babyfoot</span>
+      </div>
+      <div class="legend-item">
+        <div style="width:14px; height:2px; background:#BC1515; border:1px dashed #BC1515"></div>
+        <span>Arrondissement</span>
+      </div>
+      <div class="legend-item">
+        <img src="assets/icones/raiway_station_4329-1655540952.png" style="width:18px; height:18px">
+        <span>Station Ferrée</span>
+      </div>
     </div>
-    <div class="legend-item">
-      <img src="assets/icones/raiway_station_4329-1655540952.png" style="width:18px; height:18px">
-      <span>Station Ferrée</span>
+
+    <div class="controls">
+      <div id="selectWrapper" class="ctrl-group"></div>
+      <button id="btnAdd" class="ctrl-btn" title="Ajouter un lieu">＋ Ajouter</button>
     </div>
   </div>
-
-  <div class="controls">
-    <div id="selectWrapper" class="ctrl-group"></div>
-    <button id="btnAdd" class="ctrl-btn" title="Ajouter un lieu">＋ Ajouter</button>
-  </div>
-</div>
 </div>
 
 <div class="logo-bottom-left" aria-hidden="true">
@@ -117,8 +108,7 @@
 
     const babyfootIcon = L.icon({
       iconUrl: 'assets/icones/soccer-ball_26bd.png',
-      iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16],
-      className: 'babyfoot-icon'
+      iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16]
     });
 
     const stationIcon = L.icon({
@@ -146,7 +136,6 @@
           selArdt.innerHTML = '<option value="">Arrondissements</option>' +
             arrondissementsGeoJSON.features.map(f => {
               const p = f.properties;
-              // Utilisation des noms de champs en minuscules
               const n = p.nom || p.l_ar || p.l_ar_off || p.nom_arnd || "Ardt";
               const i = (p.c_ar || p.objectid || n).toString();
               return `<option value="${i}">${n}</option>`;
@@ -214,7 +203,6 @@
           const maxP = parseFloat(filterPrice);
           filtered = filtered.filter(l => {
             if (!l.prix || l.prix.toLowerCase().includes('gratuit')) return 0 <= maxP;
-            // Extract number from string (e.g. "0.50 €" -> 0.50)
             const pVal = parseFloat(l.prix.replace(/[^\d.]/g, ''));
             return !isNaN(pVal) && pVal <= maxP;
           });
@@ -279,7 +267,6 @@
 
           m.bindPopup(popupContent);
 
-          // Auto-zoom on marker click
           m.on('click', (e) => {
             L.DomEvent.stopPropagation(e);
             map.setView([lat, lng], 18);
@@ -307,7 +294,6 @@
           document.getElementById('fLong').value = l || "";
           document.getElementById('fLarg').value = w || "";
         };
-        // Trigger once
         if (selectModel.onchange) selectModel.onchange();
       } catch (e) { console.error("Error loading models:", e); }
     }
@@ -371,7 +357,6 @@
       }
     };
 
-    // Drawer logic for mobile
     const sidePanel = document.getElementById('sidePanel');
     const drawerHandle = document.getElementById('drawerHandle');
     if (drawerHandle && sidePanel) {
