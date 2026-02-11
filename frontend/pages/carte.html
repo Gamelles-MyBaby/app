@@ -11,32 +11,38 @@
     <div id="lieuxList" class="lieux-list">
       <div class="loader-sm">Chargement...</div>
     </div>
-  </aside>
+    <style>
+      .babyfoot-icon {
+        border-radius: 50%;
+        background: transparent !important;
+        border: none !important;
+      }
+    </style>
 
-  <div class="map-wrap">
-    <div id="map" aria-label="Carte des babyfoots"></div>
+    <div class="map-wrap">
+      <div id="map" aria-label="Carte des babyfoots"></div>
 
-    <div class="legend" id="mapLegend">
-      <strong>Légende</strong>
-      <div class="legend-item">
-        <img src="assets/icones/soccer-ball_26bd.png" style="width:18px; height:18px">
-        <span>Babyfoot</span>
+      <div class="legend" id="mapLegend">
+        <strong>Légende</strong>
+        <div class="legend-item">
+          <img src="assets/icones/soccer-ball_26bd.png" style="width:18px; height:18px">
+          <span>Babyfoot</span>
+        </div>
+        <div class="legend-item">
+          <div style="width:14px; height:2px; background:#BC1515; border:1px dashed #BC1515"></div>
+          <span>Arrondissement</span>
+        </div>
+        <div class="legend-item">
+          <img src="assets/icones/raiway_station_4329-1655540952.png" style="width:18px; height:18px">
+          <span>Station Ferrée</span>
+        </div>
       </div>
-      <div class="legend-item">
-        <div style="width:14px; height:2px; background:#BC1515; border:1px dashed #BC1515"></div>
-        <span>Arrondissement</span>
-      </div>
-      <div class="legend-item">
-        <img src="assets/icones/raiway_station_4329-1655540952.png" style="width:18px; height:18px">
-        <span>Station Ferrée</span>
+
+      <div class="controls">
+        <div id="selectWrapper" class="ctrl-group"></div>
+        <button id="btnAdd" class="ctrl-btn" title="Ajouter un lieu">＋ Ajouter</button>
       </div>
     </div>
-
-    <div class="controls">
-      <div id="selectWrapper" class="ctrl-group"></div>
-      <button id="btnAdd" class="ctrl-btn" title="Ajouter un lieu">＋ Ajouter</button>
-    </div>
-  </div>
 </div>
 
 <div class="logo-bottom-left" aria-hidden="true">
@@ -108,7 +114,8 @@
 
     const babyfootIcon = L.icon({
       iconUrl: 'assets/icones/soccer-ball_26bd.png',
-      iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16]
+      iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16],
+      className: 'babyfoot-icon'
     });
 
     const stationIcon = L.icon({
