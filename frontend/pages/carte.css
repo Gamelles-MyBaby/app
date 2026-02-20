@@ -1,12 +1,25 @@
+/* --- CONFIGURATION GLOBALE --- */
 .map-container {
   display: flex;
   height: 85vh;
-  /* Hauteur fixe pour permettre le scroll vers le footer */
   min-height: 500px;
   overflow: hidden;
   background: #f8f8f8;
 }
 
+/* CORRECTIF SÉCURITÉ : Annule le fond gris imposé aux images sur toute la page */
+/* On cible spécifiquement les icônes de la carte et de la légende */
+.leaflet-marker-icon, 
+.legend-item img {
+  background: transparent !important;
+  background-color: transparent !important; /* Force l'annulation du #eee */
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  outline: none !important;
+}
+
+/* --- PANNEAU LATÉRAL --- */
 .side-panel {
   width: 350px;
   background: #fff;
@@ -44,6 +57,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+/* --- CARTE --- */
 .map-wrap {
   flex: 1;
   position: relative;
@@ -74,6 +88,7 @@
   margin-top: 8px;
 }
 
+/* --- CONTRÔLES --- */
 .controls {
   position: absolute;
   top: 24px;
@@ -112,7 +127,7 @@ select.ctrl-btn {
   background-position: calc(100% - 15px) center;
 }
 
-/* Drawer Handle (Hidden on Desktop) */
+/* --- MOBILE & DRAWER --- */
 .drawer-handle {
   display: none;
   width: 100%;
@@ -140,7 +155,6 @@ select.ctrl-btn {
   .side-panel {
     width: 100%;
     height: 60px;
-    /* Collapsed height */
     position: absolute;
     bottom: 0;
     left: 0;
@@ -150,7 +164,6 @@ select.ctrl-btn {
     transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: #fff;
     z-index: 1001;
-    /* Above map controls */
   }
 
   .side-panel.expanded {
@@ -182,15 +195,7 @@ select.ctrl-btn {
 
   .legend {
     bottom: 80px !important;
-    /* Above the collapsed drawer */
     right: 15px !important;
     padding: 12px;
-  }
-  /* Neutralise tout style hérité sur les icônes de la carte */
-  .leaflet-marker-icon {
-      background: none !important;
-      border: none !important;
-      box-shadow: none !important;
-      padding: 0 !important;
   }
 }
