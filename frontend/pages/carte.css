@@ -186,4 +186,11 @@ select.ctrl-btn {
     right: 15px !important;
     padding: 12px;
   }
+  /* Neutralise tout style hérité sur les icônes de la carte */
+  .leaflet-marker-icon {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+  }
 }
