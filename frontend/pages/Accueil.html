@@ -1,17 +1,51 @@
 <link rel="stylesheet" href="pages/accueil.css">
 
-<section class="hero" aria-hidden="false">
-  <img src="https://www.leblogdusport.fr/wp-content/uploads/2023/01/105g2OQvqUzoIu3NvNVK.jpeg"
-    alt="Photo ambiance babyfoot" style="width:100%;height:auto;display:block" />
-  <div class="slogan" role="region" aria-label="Slogan">
-    <h1 id="main-title">Localise. Défie. Joue.</h1>
-    <p>Le guide des babyfoots et des bars près de chez toi</p>
+<section class="home-container">
+  <!-- En-tête -->
+  <div class="home-card text-center">
+    <h2 class="home-title red-text">Bienvenue dans la communauté MY BABY !</h2>
+    <p class="home-text font-bold">Trouvez un baby-foot près de vous, ajoutez-en un s'il n'est pas encore répertorié, et faites monter votre score en jouant et en progressant dans le classement ELO !</p>
   </div>
-</section>
 
-<div class="hero-caption" aria-hidden="true">
-  Utilisez la navigation en haut pour accéder aux différents onglets.
-</div>
+  <!-- Section 1 -->
+  <div class="home-card flex-row">
+    <div class="card-image left-img">
+      <img src="assets/icones/Photo_acceuille/1. Créez votre profil joueur.png" alt="Créer profil">
+    </div>
+    <div class="card-content">
+      <h3 class="home-subtitle">1. Créez votre profil joueur.</h3>
+      <p class="home-text">Rendez-vous dans l'onglet « Inscription » pour créer votre compte. Une fois inscrit·e, vous pourrez :</p>
+      <ul class="home-list">
+        <li>Ajouter des adresses de baby-foot que vous connaissez</li>
+        <li>Défier d'autres joueurs autour d'un baby-foot</li>
+        <li>Monter en niveau en gagnant des matchs — ou descendre légèrement en cas de défaite</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="home-card flex-row reverse-mobile">
+    <div class="card-content">
+        <h3 class="home-subtitle">2. Ajouter un baby-foot</h3>
+        <p class="home-text">Naviguez sur la carte pour voir les baby-foot déjà ajoutés par les autres joueurs. Appuyez sur le bouton « Ajouter » pour renseigner une nouvelle adresse — c'est vous qui faites vivre la carte !</p>
+    </div>
+    <div class="card-image right-img">
+        <img src="assets/icones/Photo_acceuille/2. Ajouter un baby-foot.png" alt="Ajouter baby-foot">
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="home-card flex-row">
+    <div class="card-image left-img">
+      <img src="assets/icones/Photo_acceuille/3. Les matchs.png" alt="Les matchs">
+    </div>
+    <div class="card-content">
+      <h3 class="home-subtitle">3. Les matchs</h3>
+      <p class="home-text">Dans l'onglet « Matchs », lancez des défis avec le bouton nouveau match, suivez vos demandes, et consultez votre classement.</p>
+    </div>
+  </div>
+
+</section>
 
 <div class="logo-bottom-left" aria-hidden="true">
   <svg width="84" height="84" viewBox="0 0 90 90">
@@ -22,6 +56,6 @@
 
 <script type="module">
   (function () {
-    console.log("Accueil chargé");
+    console.log("Accueil chargé avec le nouveau design");
   })();
 </script>
