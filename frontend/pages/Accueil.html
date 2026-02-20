@@ -1,74 +1,70 @@
-<link rel="stylesheet" href="pages/accueil.css">
-
-<section class="home-container">
-  <!-- En-tête -->
-  <div class="home-card text-center">
-    <h2 class="home-title red-text">Bienvenue dans la communauté MY BABY !</h2>
-    <p class="home-text font-bold">Trouvez un baby-foot près de vous, ajoutez-en un s'il n'est pas encore répertorié, et
-      faites monter votre score en jouant et en progressant dans le classement ELO !</p>
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <img src="assets/icones/logo_detaille.svg" alt="MyBaby" style="height: 32px; width: auto; vertical-align: middle;">
   </div>
+  <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+  <nav id="mainNav" aria-label="Navigation principale">
+    <a class="nav-btn" data-link="home" href="#home" title="Accueil" aria-label="Accueil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="M3 11.5L12 4l9 7.5" />
+        <path d="M5 21h14a1 1 0 0 0 1-1V11" />
+        <path d="M9 21V13h6v8" />
+      </svg>
+      Accueil
+    </a>
 
-  <!-- Section 1 -->
-  <div class="home-card flex-row">
-    <div class="card-image left-img">
-      <img src="../icone/Photo_acceuille/1. Créez votre profil joueur.png" alt="Créer profil">
-    </div>
-    <div class="card-content">
-      <h3 class="home-subtitle">1. Créez votre profil joueur.</h3>
-      <p class="home-text">Rendez-vous dans l'onglet « Inscription » pour créer votre compte. Une fois inscrit·e, vous
-        pourrez :</p>
-      <ul class="home-list">
-        <li>Ajouter des adresses de baby-foot que vous connaissez</li>
-        <li>Défier d'autres joueurs autour d'un baby-foot</li>
-        <li>Monter en niveau en gagnant des matchs — ou descendre légèrement en cas de défaite</li>
-      </ul>
-    </div>
-  </div>
+    <a class="nav-btn" data-link="map" href="#map" title="Carte" aria-label="Carte">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"
+        stroke-linejoin="round">
+        <circle cx="12" cy="10" r="3" />
+        <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" />
+      </svg>
+      Carte
+    </a>
 
-  <!-- Section 2 -->
-  <div class="home-card flex-row reverse-mobile">
-    <div class="card-content">
-      <h3 class="home-subtitle">2. Ajouter un baby-foot</h3>
-      <p class="home-text">Naviguez sur la carte pour voir les baby-foot déjà ajoutés par les autres joueurs. Appuyez
-        sur le bouton « Ajouter » pour renseigner une nouvelle adresse — c'est vous qui faites vivre la carte !</p>
-    </div>
-    <div class="card-image right-img">
-      <img src="../icone/Photo_acceuille/2. Ajouter un baby-foot.png" alt="Ajouter baby-foot">
-    </div>
-  </div>
+    <a class="nav-btn" data-link="profile" href="#profile" title="Profil" aria-label="Profil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+      Profil
+    </a>
 
-  <!-- Section 3 -->
-  <div class="home-card flex-row">
-    <div class="card-image left-img">
-      <img src="../icone/Photo_acceuille/3. Les matchs.png" alt="Les matchs">
-    </div>
-    <div class="card-content">
-      <h3 class="home-subtitle">3. Les matchs</h3>
-      <p class="home-text">Dans l'onglet « Matchs », lancez des défis avec le bouton nouveau match, suivez vos demandes,
-        et consultez votre classement.</p>
-    </div>
-  </div>
+    <a class="nav-btn" data-link="match" href="#match" title="Match" aria-label="Match">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6">
+        <path d="M16 3l5 5" />
+        <path d="M3 21l6-6" />
+        <path d="M7 7l10 10" />
+        <path d="M14 4l6 6" />
+      </svg>
+      Match
+    </a>
 
-  <!-- Section 4 -->
-  <div class="home-card flex-row reverse-mobile">
-    <div class="card-content">
-      <h3 class="home-subtitle">4. Le classement ELO</h3>
-      <p class="home-text">À votre inscription, vous démarrez avec 1 500 points. Gagnez, et votre score augmente ;
-        perdez, il diminue — d'autant plus que votre adversaire est bien classé.</p>
-    </div>
-    <div class="card-image right-img">
-      <img src="../icone/Photo_acceuille/4. Le classement ELO.png" alt="Le classement ELO">
-    </div>
-  </div>
+    <a class="nav-btn" data-link="ranking" href="#ranking" title="Classement" aria-label="Classement">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6">
+        <path d="M12 20V10" />
+        <path d="M18 20V4" />
+        <path d="M6 20v-6" />
+        <path d="M3 3h18" />
+      </svg>
+      Classement
+    </a>
 
-</section>
-
-<div class="logo-bottom-left" aria-hidden="true">
-  <img src="../icone/logo_detaille.svg" alt="MyBaby Logo" style="width: 100px; height: auto;">
-</div>
-
-<script type="module">
-  (function () {
-    console.log("Accueil chargé avec le nouveau design");
-  })();
-</script>
+    <a class="nav-btn" data-link="login" href="#login" title="Connexion" aria-label="Connexion">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        <polyline points="10 17 15 12 10 7" />
+        <line x1="15" y1="12" x2="3" y2="12" />
+      </svg>
+      Connexion
+    </a>
+  </nav>
+</header>
