@@ -70,7 +70,14 @@ function executeScripts(container) {
         }
 
         // Remove old script and inject new one to trigger execution
-        oldScript.parentNode.replaceChild(newScript, oldScript);
+        try {
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        } catch (e) {
+            console.error("ERREUR DANS REPLACESCRIPT:", e);
+            console.error("CONTENT DU SCRIPT FAUTIF:");
+            console.error(oldScript.textContent);
+            throw e; // re-throw pour garder la trace
+        }
     });
 }
 
@@ -177,3 +184,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkBackend();
     setTimeout(checkMatchNotifications, 1000);
 });
+
