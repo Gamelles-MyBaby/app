@@ -277,5 +277,5 @@ img:not([src]) {
 }
 
 img {
-  background: #eee;
+  background: transparent;
 }
