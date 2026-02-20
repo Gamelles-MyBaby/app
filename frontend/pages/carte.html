@@ -104,7 +104,33 @@
 
     const map = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 12);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    });
+
+    const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20
+    });
+
+    const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '&copy; Google'
+    });
+
+    // Définir la vue par défaut
+    cartoDB.addTo(map);
+
+    const baseMaps = {
+      'CartoDB (Clair)': cartoDB,
+      'OpenStreetMap': osm,
+      'Google Satellite': googleSat
+    };
+
+    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
     const babyfootIcon = L.icon({
       iconUrl: 'assets/icones/soccer-ball_26bd.png',
