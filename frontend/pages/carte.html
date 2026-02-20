@@ -1,271 +1,77 @@
-<link rel="stylesheet" href="pages/carte.css">
-<div class="map-container">
-  <aside class="side-panel" id="sidePanel">
-    <button class="drawer-handle" id="drawerHandle" aria-label="Déplier la liste">
-      <span></span>
-    </button>
-    <div class="side-header">
-      <h2 style="margin:0; font-weight:800; color:var(--rouge)">📍 Lieux Proches</h2>
-      <div id="activeFilter" style="font-size:0.8rem; color:#666; margin-top:4px">Tous les arrondissements</div>
-    </div>
-    <div id="lieuxList" class="lieux-list">
-      <div class="loader-sm">Chargement...</div>
-    </div>
-  </aside>
+<link rel="stylesheet" href="pages/accueil.css">
 
-  <div class="map-wrap">
-    <div id="map" aria-label="Carte des babyfoots"></div>
+<section class="home-container">
+  <!-- En-tête -->
+  <div class="home-card text-center">
+    <h2 class="home-title red-text">Bienvenue dans la communauté MY BABY !</h2>
+    <p class="home-text font-bold">Trouvez un baby-foot près de vous, ajoutez-en un s'il n'est pas encore répertorié, et
+      faites monter votre score en jouant et en progressant dans le classement ELO !</p>
+  </div>
 
-    <div class="legend" id="mapLegend">
-      <strong>Légende</strong>
-      <div class="legend-item">
-        <img src="assets/icones/soccer-ball_26bd.png" style="width:18px; height:18px">
-        <span>Babyfoot</span>
-      </div>
-      <div class="legend-item">
-        <div style="width:14px; height:2px; background:#BC1515; border:1px dashed #BC1515"></div>
-        <span>Arrondissement</span>
-      </div>
-      <div class="legend-item">
-        <img src="assets/icones/raiway_station_4329-1655540952.png" style="width:18px; height:18px">
-        <span>Station Ferrée</span>
-      </div>
+  <!-- Section 1 -->
+  <div class="home-card flex-row">
+    <div class="card-image left-img">
+      <img src="../icone/Photo_acceuille/1. Créez votre profil joueur.png" alt="Créer profil">
     </div>
-
-    <div class="controls">
-      <div id="selectWrapper" class="ctrl-group"></div>
-      <button id="btnAdd" class="ctrl-btn" title="Ajouter un lieu">＋ Ajouter</button>
+    <div class="card-content">
+      <h3 class="home-subtitle">1. Créez votre profil joueur.</h3>
+      <p class="home-text">Rendez-vous dans l'onglet « Inscription » pour créer votre compte. Une fois inscrit·e, vous
+        pourrez :</p>
+      <ul class="home-list">
+        <li>Ajouter des adresses de baby-foot que vous connaissez</li>
+        <li>Défier d'autres joueurs autour d'un baby-foot</li>
+        <li>Monter en niveau en gagnant des matchs — ou descendre légèrement en cas de défaite</li>
+      </ul>
     </div>
   </div>
-</div>
+
+  <!-- Section 2 -->
+  <div class="home-card flex-row reverse-mobile">
+    <div class="card-content">
+      <h3 class="home-subtitle">2. Ajouter un baby-foot</h3>
+      <p class="home-text">Naviguez sur la carte pour voir les baby-foot déjà ajoutés par les autres joueurs. Appuyez
+        sur le bouton « Ajouter » pour renseigner une nouvelle adresse — c'est vous qui faites vivre la carte !</p>
+    </div>
+    <div class="card-image right-img">
+      <img src="../icone/Photo_acceuille/2. Ajouter un baby-foot.png" alt="Ajouter baby-foot">
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="home-card flex-row">
+    <div class="card-image left-img">
+      <img src="../icone/Photo_acceuille/3. Les matchs.png" alt="Les matchs">
+    </div>
+    <div class="card-content">
+      <h3 class="home-subtitle">3. Les matchs</h3>
+      <p class="home-text">Dans l'onglet « Matchs », lancez des défis avec le bouton nouveau match, suivez vos demandes,
+        et consultez votre classement.</p>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="home-card flex-row reverse-mobile">
+    <div class="card-content">
+      <h3 class="home-subtitle">4. Le classement ELO</h3>
+      <p class="home-text">À votre inscription, vous démarrez avec 1 500 points. Gagnez, et votre score augmente ;
+        perdez, il diminue — d'autant plus que votre adversaire est bien classé.</p>
+    </div>
+    <div class="card-image right-img">
+      <img src="../icone/Photo_acceuille/4. Le classement ELO.png" alt="Le classement ELO">
+    </div>
+  </div>
+
+</section>
 
 <div class="logo-bottom-left" aria-hidden="true">
-  <svg width="64" height="64" viewBox="0 0 90 90">
-    <circle cx="45" cy="45" r="40" fill="var(--rouge)" />
-    <text x="45" y="72" text-anchor="middle" fill="var(--beige)" font-family="Arial Black" font-size="10">MYBABY</text>
+  <svg width="84" height="84" viewBox="0 0 90 90">
+    <circle cx="45" cy="45" r="40" fill="#bc1515" opacity="0.95" />
+    <text x="45" y="72" text-anchor="middle" fill="#eadec8" font-family="Arial Black" font-size="10">MYBABY</text>
   </svg>
 </div>
 
-<!-- Modal Ajout Babyfoot -->
-<div id="modalAdd" class="modal">
-  <div class="modal-content">
-    <h2 style="color:var(--rouge); margin-top:0">Ajouter un Babyfoot</h2>
-    <form id="formAddBaby" class="form">
-      <label for="fNomLieu">Nom du lieu (50 car.)</label>
-      <input id="fNomLieu" name="nom_lieu" type="text" maxlength="50" required>
-
-      <label for="fAdresse">Localisation (sélectionnée sur la carte)</label>
-      <input id="fAdresse" name="adresse" type="text" readonly required placeholder="Cliquez sur la carte">
-      <input type="hidden" id="fLat" name="ycoord">
-      <input type="hidden" id="fLng" name="xcoord">
-
-      <label for="fModel">Modèle du baby foot</label>
-      <select id="fModel" name="id_modele" required></select>
-
-      <label for="fMarque">Marque du baby foot</label>
-      <input id="fMarque" name="marque" type="text" maxlength="50" required>
-
-      <div style="display:flex; gap:10px">
-        <div style="flex:1">
-          <label>Longueur (cm)</label>
-          <input id="fLong" type="number" step="0.1" required>
-        </div>
-        <div style="flex:1">
-          <label>Largeur (cm)</label>
-          <input id="fLarg" type="number" step="0.1" required>
-        </div>
-      </div>
-
-      <label for="fMatiere">Matière du baby foot</label>
-      <input id="fMatiere" name="matiere" type="text" maxlength="50">
-
-      <label for="fCouleur">Couleur du baby foot</label>
-      <input id="fCouleur" name="couleur" type="text" maxlength="50">
-
-      <div class="actions" style="margin-top:20px">
-        <button type="button" id="btnCancelAdd" class="btn secondary">Annuler</button>
-        <button type="submit" class="btn primary">Enregistrer</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script type="module">
-  import { babyfootService } from './services/babyfootService.js';
-  import { mapService } from './services/mapService.js';
-
-  (async function () {
-    'use strict';
-
-    if (typeof L === 'undefined') {
-      document.getElementById('map').innerHTML = '<div style="padding:20px; text-align:center">Erreur: Leaflet n\'est pas chargé.</div>';
-      return;
-    }
-
-    const map = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 12);
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap'
-    });
-
-    const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 20
-    });
-
-    const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-      maxZoom: 20,
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      attribution: '© Google'
-    });
-
-    // Définir la vue par défaut
-    cartoDB.addTo(map);
-
-    const baseMaps = {
-      "CartoDB Positron": cartoDB,
-      "OpenStreetMap": osm,
-      "Google Satellite": googleSat
-    };
-
-    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
-
-    const babyfootIcon = L.icon({
-      iconUrl: 'assets/icones/soccer-ball_26bd.png',
-      iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16]
-    });
-
-    const stationIcon = L.icon({
-      iconUrl: 'assets/icones/raiway_station_4329-1655540952.png',
-      iconSize: [12, 12], iconAnchor: [6, 12], popupAnchor: [0, -12]
-    });
-
-    let stationsGeoJSON = null;
-    let arrondissementsGeoJSON = null;
-    let allLieux = [];
-    const markerGroup = L.layerGroup().addTo(map);
-    const stationGroup = L.layerGroup().addTo(map);
-    const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
-
-    async function initLayers() {
-      try {
-        arrondissementsGeoJSON = await mapService.getArrondissements();
-        if (arrondissementsGeoJSON && arrondissementsGeoJSON.features) {
-          ardtLayer.addData(arrondissementsGeoJSON);
-
-          // Arrondissement Filter
-          const selArdt = document.createElement('select');
-          selArdt.id = "filterArdt";
-          selArdt.className = "ctrl-btn";
-          selArdt.innerHTML = '<option value="">Arrondissements</option>' +
-            arrondissementsGeoJSON.features.map(f => {
-              const p = f.properties;
-              const n = p.nom || p.l_ar || p.l_ar_off || p.nom_arnd || "Ardt";
-              const i = (p.c_ar || p.objectid || n).toString();
-              return `<option value="${i}">${n}</option>`;
-            }).sort().join('');
-          document.getElementById('selectWrapper').appendChild(selArdt);
-          selArdt.onchange = () => loadLieux();
-
-          // Price Filter
-          const selPrice = document.createElement('select');
-          selPrice.id = "filterPrice";
-          selPrice.className = "ctrl-btn";
-          selPrice.innerHTML = `
-            <option value="">Prix Max</option>
-            <option value="0.5">0.50 €</option>
-            <option value="1">1.00 €</option>
-            <option value="2">2.00 €</option>
-          `;
-          document.getElementById('selectWrapper').appendChild(selPrice);
-          selPrice.onchange = () => loadLieux();
-        }
-
-        stationsGeoJSON = await mapService.getStations();
-        if (stationsGeoJSON && stationsGeoJSON.features) {
-          stationsGeoJSON.features = stationsGeoJSON.features.filter(f => f.geometry && f.geometry.type === 'Point');
-          L.geoJSON(stationsGeoJSON, { pointToLayer: (f, l) => L.marker(l, { icon: stationIcon }) }).addTo(stationGroup);
-        }
-      } catch (err) {
-        console.error("Erreur lors de l'initialisation des couches :", err);
-      }
-      loadLieux();
-    }
-
-    async function loadLieux() {
-      const listEl = document.getElementById('lieuxList');
-      const labelEl = document.getElementById('activeFilter');
-      const filterArdt = document.getElementById('filterArdt')?.value;
-      const filterPrice = document.getElementById('filterPrice')?.value;
-
-      try {
-        if (allLieux.length === 0) allLieux = await babyfootService.getAllBabyfoots();
-
-        markerGroup.clearLayers();
-        let filtered = allLieux;
-
-        // Apply Ardt Filter
-        if (filterArdt && arrondissementsGeoJSON) {
-          const ar = arrondissementsGeoJSON.features.find(f => {
-            const p = f.properties;
-            return (p.c_ar || p.objectid || p.nom || p.l_ar || p.l_ar_off).toString() === filterArdt;
-          });
-          if (ar) {
-            labelEl.textContent = ar.properties.nom || "Filtré";
-            filtered = filtered.filter(l => {
-              const x = parseFloat(l.xcoord), y = parseFloat(l.ycoord);
-              if (isNaN(x) || isNaN(y)) return false;
-              try { return turf.booleanPointInPolygon(turf.point([x, y]), ar); } catch (e) { return false; }
-            });
-            const bounds = L.geoJSON(ar).getBounds();
-            if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30] });
-          }
-        } else { labelEl.textContent = "Tous les arrondissements"; }
-
-        // Apply Price Filter
-        if (filterPrice) {
-          const maxP = parseFloat(filterPrice);
-          filtered = filtered.filter(l => {
-            if (!l.prix || l.prix.toLowerCase().includes('gratuit')) return 0 <= maxP;
-            const pVal = parseFloat(l.prix.replace(/[^\d.]/g, ''));
-            return !isNaN(pVal) && pVal <= maxP;
-          });
-        }
-
-        listEl.innerHTML = filtered.length ? filtered.map(l => {
-          const p = l.prix || '';
-          const displayPrice = (p.includes('€') || p.toLowerCase().includes('gratuit') || p === '') ? (p || 'Gratuit') : p + ' €';
-          return `
-          <div class="lieu-card" onclick="window.markers['${l.id_lieu}'].openPopup(); map.setView(window.markers['${l.id_lieu}'].getLatLng(), 18)">
-            <div style="font-weight:800; color:var(--rouge)">${l.nom_lieu}</div>
-            <div style="font-size:0.8rem; color:#666">${l.adresse || ''}</div>
-            <div style="font-size:0.75rem; font-weight:700; margin-top:4px">${displayPrice} • ${l.nom_modele || 'Modèle inconnu'}</div>
-          </div>`;
-        }).join('') : '<div class="empty-msg">Aucun lieu trouvé.</div>';
-
-        window.markers = {};
-        filtered.forEach(l => {
-          const lat = parseFloat(l.ycoord), lng = parseFloat(l.xcoord);
-          if (isNaN(lat) || isNaN(lng)) return;
-
-          let sInfo = "";
-          if (stationsGeoJSON && stationsGeoJSON.features.length) {
-            try {
-              const babyPt = turf.point([lng, lat]);
-              const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
-              if (nearest) {
-                const p = nearest.properties;
-                const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
-
-                let sName = "Inconnue";
-                const nameKeys = ['nom_zda', 'nom_ptes', 'nom_gares', 'libelle', 'label', 'nom', 'text'];
-                for (let key of nameKeys) {
-                  const val = p[key];
-                  if (val) { sName = val; break; }
-                }
-
-                const sLines = p.res_com || p.lignes || "N/A";
-                
+  (function () {
+    console.log("Accueil chargé avec le nouveau design");
+  })();
+</script>
