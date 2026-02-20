@@ -104,7 +104,34 @@
 
     const map = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 12);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    });
+
+    const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20
+    });
+
+    const googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '© Google'
+    });
+
+    // Définir la vue par défaut
+    cartoDB.addTo(map);
+
+    const baseMaps = {
+      "CartoDB Positron": cartoDB,
+      "OpenStreetMap": osm,
+      "Google Satellite": googleSat
+    };
+
+    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
     const babyfootIcon = L.icon({
       iconUrl: 'assets/icones/soccer-ball_26bd.png',
@@ -241,130 +268,3 @@
                 }
 
                 const sLines = p.res_com || p.lignes || "N/A";
-                sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
-                    <strong>Station: ${sName}</strong><br>
-                    Lignes: ${sLines} (${d}m)
-                  </div>`;
-              }
-            } catch (e) { }
-          }
-          const m = L.marker([lat, lng], { icon: babyfootIcon }).addTo(markerGroup);
-          window.markers[l.id_lieu] = m;
-
-          const p = l.prix || '';
-          const displayPrice = (p.includes('€') || p.toLowerCase().includes('gratuit') || p === '') ? (p || 'Gratuit') : p + ' €';
-          const popupContent = `
-            <div style="min-width:180px">
-              <h3 style="color:var(--rouge);margin:0 0 4px 0">${l.nom_lieu}</h3>
-              <p style="font-size:0.85rem;margin:0;color:#555">${l.adresse || ''}</p>
-              <div style="margin-top:8px; display:flex; gap:8px; font-size:0.8rem">
-                <span style="background:var(--rouge); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700">${displayPrice}</span>
-                <span style="background:#eee; padding:2px 6px; border-radius:4px">${l.nom_modele || 'Modèle classique'}</span>
-              </div>
-              ${sInfo}
-            </div>
-          `;
-
-          m.bindPopup(popupContent);
-
-          m.on('click', (e) => {
-            L.DomEvent.stopPropagation(e);
-            map.setView([lat, lng], 18);
-          });
-        });
-      } catch (e) { console.error(e); }
-    }
-
-    const modalAdd = document.getElementById('modalAdd');
-    const formAdd = document.getElementById('formAddBaby');
-    const btnCancelAdd = document.getElementById('btnCancelAdd');
-    const selectModel = document.getElementById('fModel');
-
-    async function initAddForm() {
-      try {
-        const models = await babyfootService.getModels();
-        selectModel.innerHTML = models.map(m => `<option value="${m.id_modele}" data-marque="${m.marque || ''}" data-matiere="${m.matière || ''}" data-couleur="${m.couleur || ''}" data-taille="${m.taille || ''}">${m.nom_modele}</option>`).join('');
-
-        selectModel.onchange = () => {
-          const opt = selectModel.selectedOptions[0];
-          document.getElementById('fMarque').value = opt.dataset.marque;
-          document.getElementById('fMatiere').value = opt.dataset.matiere;
-          document.getElementById('fCouleur').value = opt.dataset.couleur;
-          const [l, w] = (opt.dataset.taille || "0/0").split('/');
-          document.getElementById('fLong').value = l || "";
-          document.getElementById('fLarg').value = w || "";
-        };
-        if (selectModel.onchange) selectModel.onchange();
-      } catch (e) { console.error("Error loading models:", e); }
-    }
-
-    document.getElementById('btnAdd').onclick = async () => {
-      const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
-      if (!user.id_utilisateur && !user.id) {
-        alert("Veuillez vous connecter pour ajouter un lieu.");
-        window.location.hash = '#login';
-        return;
-      }
-
-      await initAddForm();
-      alert("Cliquez sur l'emplacement précis du babyfoot sur la carte...");
-
-      map.once('click', async e => {
-        const { lat, lng } = e.latlng;
-        document.getElementById('fLat').value = lat;
-        document.getElementById('fLng').value = lng;
-
-        try {
-          const revRes = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${lng}&lat=${lat}`);
-          const revData = await revRes.json();
-          if (revData.features && revData.features.length > 0) {
-            document.getElementById('fAdresse').value = revData.features[0].properties.label;
-          }
-        } catch (err) { }
-
-        modalAdd.classList.add('show');
-      });
-    };
-
-    btnCancelAdd.onclick = () => modalAdd.classList.remove('show');
-
-    formAdd.onsubmit = async (e) => {
-      e.preventDefault();
-      const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
-
-      try {
-        const payload = {
-          nom_lieu: formAdd.nom_lieu.value,
-          adresse: formAdd.adresse.value,
-          ville: "Paris",
-          id_modele: formAdd.id_modele.value,
-          id_utilisateur: user.id_utilisateur || user.id,
-          xcoord: parseFloat(formAdd.xcoord.value),
-          ycoord: parseFloat(formAdd.ycoord.value),
-          taille: `${formAdd.fLong.value}/${formAdd.fLarg.value}`,
-          marque: formAdd.marque.value,
-          matiere: formAdd.matiere.value,
-          couleur: formAdd.couleur.value
-        };
-
-        await babyfootService.createBabyfoot(payload);
-        alert("Lieu ajouté avec succès !");
-        modalAdd.classList.remove('show');
-        allLieux = [];
-        loadLieux();
-      } catch (err) {
-        alert("Erreur lors de l'ajout : " + err.message);
-      }
-    };
-
-    const sidePanel = document.getElementById('sidePanel');
-    const drawerHandle = document.getElementById('drawerHandle');
-    if (drawerHandle && sidePanel) {
-      drawerHandle.addEventListener('click', () => {
-        sidePanel.classList.toggle('expanded');
-      });
-    }
-
-    initLayers();
-  })();
-</script>
