@@ -3,61 +3,141 @@
   --bordeaux:#953c3c;
   --gris-fonce:#3b3a3a;
   --beige:#eadec8;
-  --gris-clair:#f8f4eb;
-  --bleu:#2b88d5;
+  --beige-clair:#fdf7eb;
+  --bordure-or:#dec19a;
 }
-*{box-sizing:border-box}
+
 body{
-  background:var(--beige);
-  font-family: "Segoe UI", Arial, sans-serif;
+  background: white; /* Modification par rapport au beige général */
+  font-family: 'Century Gothic', "Segoe UI", Arial, sans-serif;
   margin:0;
   padding:0;
   color:var(--gris-fonce);
 }
 
-/* header / nav */
-header{
-  background:var(--rouge);
-  color:#fff;
-  padding:12px 18px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:3px solid var(--bordeaux);
-  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+.home-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
 }
-.brand{font-weight:700; font-size:1.25rem; letter-spacing:1px}
-nav{display:flex; gap:10px; align-items:center}
 
-/* nav buttons */
-.nav-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 12px;
-  background:var(--bordeaux);
-  color:#fff;
-  text-decoration:none;
-  border-radius:14px;
-  font-weight:600;
-  box-shadow:0 2px 6px rgba(0,0,0,0.06);
-  transition:transform .12s, background .12s;
+.home-card {
+    background: white;
+    border: 4px solid var(--bordure-or);
+    border-radius: 20px;
+    padding: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }
-.nav-btn svg{width:18px; height:18px; flex-shrink:0}
-.nav-btn:hover{transform:translateY(-3px); background:var(--gris-fonce)}
 
-/* contenu */
-main{
-  max-width:1100px;
-  margin:28px auto;
-  border-radius:16px;
-  padding:0;
-  box-shadow:0 6px 24px rgba(0,0,0,0.06);
-  overflow:hidden;
-  background:var(--gris-clair);
+.text-center {
+    text-align: center;
 }
-.hero { position: relative; width:100%; aspect-ratio:16/7; background:#000; }
-.slogan { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); color:#eadec8; padding:12px 18px; background:rgba(59,58,58,0.35); border-radius:10px; }
-.hero-caption{ padding:14px 18px; background:var(--gris-clair); font-size:0.95rem; color:var(--gris-fonce); text-align:center; }
+
+.flex-row {
+    display: flex;
+    align-items: stretch;
+    padding: 0; /* Suppression du padding pour que l'image touche les bords */
+}
+
+.card-content {
+    padding: 20px 30px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.card-image {
+    width: 35%;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    min-height: 200px;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Bordures intérieures arrondies pour les images */
+.left-img {
+    border-radius: 16px 0 0 16px; 
+}
+
+.right-img {
+    border-radius: 0 16px 16px 0;
+}
+
+.home-title {
+    font-size: 1.5rem;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.red-text {
+    color: var(--bordeaux);
+}
+
+.home-subtitle {
+    font-size: 1.2rem;
+    color: var(--gris-fonce);
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+
+.home-text {
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.home-list {
+    margin: 10px 0 0 20px;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #444;
+}
+
+.home-list li {
+    margin-bottom: 5px;
+    list-style-type: disc;
+}
+
 .logo-bottom-left{position:fixed; left:18px; bottom:14px; width:84px; height:84px; pointer-events:none; z-index:999;}
-@media(max-width:640px){ .nav-btn {padding:8px; font-size:.95rem} .logo-bottom-left{left:10px; bottom:10px; width:64px; height:64px} .hero{aspect-ratio:4/3} }
+
+@media(max-width:640px){ 
+    .flex-row {
+        flex-direction: column;
+    }
+    .card-image, .left-img, .right-img {
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+        min-height: 150px;
+    }
+    .reverse-mobile {
+        flex-direction: column-reverse;
+    }
+    .reverse-mobile .card-image {
+        border-radius: 16px 16px 0 0;
+    }
+    .logo-bottom-left{left:10px; bottom:10px; width:64px; height:64px} 
+}
