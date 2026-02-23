@@ -19,7 +19,6 @@
 
   <div class="map-wrap">
     <div id="map" aria-label="Carte des babyfoots"></div>
-
     <div class="legend" id="mapLegend">
       <strong>Légende</strong>
       <div class="legend-item">
@@ -35,7 +34,6 @@
         <span>Station Ferrée</span>
       </div>
     </div>
-
     <div class="controls">
       <div id="selectWrapper" class="ctrl-group"></div>
       <button id="btnAdd" class="ctrl-btn" title="Ajouter un lieu">＋ Ajouter</button>
@@ -51,37 +49,22 @@
   <div class="modal-content">
     <h2 style="color:var(--rouge); margin-top:0">Ajouter un Babyfoot</h2>
     <form id="formAddBaby" class="form">
-      <label for="fNomLieu">Nom du lieu (50 car.)</label>
+      <label for="fNomLieu">Nom du lieu</label>
       <input id="fNomLieu" name="nom_lieu" type="text" maxlength="50" required>
-
-      <label for="fAdresse">Localisation (sélectionnée sur la carte)</label>
+      <label for="fAdresse">Localisation</label>
       <input id="fAdresse" name="adresse" type="text" readonly required placeholder="Cliquez sur la carte">
       <input type="hidden" id="fLat" name="ycoord">
       <input type="hidden" id="fLng" name="xcoord">
-
-      <label for="fModel">Modèle du baby foot</label>
+      <label for="fModel">Modèle</label>
       <select id="fModel" name="id_modele" required></select>
-
-      <label for="fMarque">Marque du baby foot</label>
-      <input id="fMarque" name="marque" type="text" maxlength="50" required>
-
+      <label for="fMarque">Marque</label>
+      <input id="fMarque" name="marque" type="text" required>
       <div style="display:flex; gap:10px">
-        <div style="flex:1">
-          <label for="fLong">Longueur (cm)</label>
-          <input id="fLong" name="longueur" type="number" step="0.1" required>
-        </div>
-        <div style="flex:1">
-          <label for="fLarg">Largeur (cm)</label>
-          <input id="fLarg" name="largeur" type="number" step="0.1" required>
-        </div>
+        <div style="flex:1"><label>Long. (cm)</label><input id="fLong" name="longueur" type="number" step="0.1" required></div>
+        <div style="flex:1"><label>Larg. (cm)</label><input id="fLarg" name="largeur" type="number" step="0.1" required></div>
       </div>
-
-      <label for="fMatiere">Matière du baby foot</label>
-      <input id="fMatiere" name="matiere" type="text" maxlength="50">
-
-      <label for="fCouleur">Couleur du baby foot</label>
-      <input id="fCouleur" name="couleur" type="text" maxlength="50">
-
+      <label for="fMatiere">Matière</label><input id="fMatiere" name="matiere" type="text">
+      <label for="fCouleur">Couleur</label><input id="fCouleur" name="couleur" type="text">
       <div class="actions" style="margin-top:20px">
         <button type="button" id="btnCancelAdd" class="btn secondary">Annuler</button>
         <button type="submit" class="btn primary">Enregistrer</button>
@@ -96,66 +79,27 @@
 
   (async function () {
     'use strict';
-
-    if (typeof L === 'undefined') {
-      document.getElementById('map').innerHTML = '<div style="padding:20px; text-align:center">Erreur: Leaflet n\'est pas chargé.</div>';
-      return;
-    }
+    if (typeof L === 'undefined') return;
 
     const map = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 12);
+    window.map = map;
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Exposition de la map à window pour les clics HTML
-    window.map = map;
+    const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { maxZoom: 20 }).addTo(map);
+    window.babyfootIconNormal = L.icon({ iconUrl: 'assets/icones/loc_point.svg', iconSize: [28, 38], iconAnchor: [14, 38], popupAnchor: [0, -38] });
+    window.babyfootIconSelected = L.icon({ iconUrl: 'assets/icones/loc_point_select.svg', iconSize: [36, 48], iconAnchor: [18, 48], popupAnchor: [0, -48] });
+    const stationIcon = L.icon({ iconUrl: 'assets/icones/raiway_station_4329-1655540952.png', iconSize: [12, 12], iconAnchor: [6, 12] });
 
-    const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      subdomains: 'abcd', maxZoom: 20
-    }).addTo(map);
-
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '&copy; OpenStreetMap'
-    });
-
-    const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-      maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '&copy; Google'
-    });
-
-    L.control.layers({ "CartoDB": cartoDB, "OpenStreetMap": osm, "Satellite": googleSat }, null, { position: 'topright' }).addTo(map);
-
-    window.babyfootIconNormal = L.icon({
-      iconUrl: 'assets/icones/loc_point.svg',
-      iconSize: [28, 38], iconAnchor: [14, 38], popupAnchor: [0, -38]
-    });
-
-    window.babyfootIconSelected = L.icon({
-      iconUrl: 'assets/icones/loc_point_select.svg',
-      iconSize: [36, 48], iconAnchor: [18, 48], popupAnchor: [0, -48]
-    });
-
-    const stationIcon = L.icon({
-      iconUrl: 'assets/icones/raiway_station_4329-1655540952.png',
-      iconSize: [12, 12], iconAnchor: [6, 12]
-    });
-
-    let stationsGeoJSON = null;
-    let arrondissementsGeoJSON = null;
-    let allLieux = [];
-    const markerGroup = L.layerGroup().addTo(map);
-    const stationGroup = L.layerGroup().addTo(map);
+    let stationsGeoJSON = null, arrondissementsGeoJSON = null, allLieux = [];
+    const markerGroup = L.layerGroup().addTo(map), stationGroup = L.layerGroup().addTo(map);
     const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
 
-    window.currentSelectedLieuId = null;
-    window.markers = {};
-
     window.selectLieu = (id) => {
-      if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) {
-        window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
-      }
+      if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
       if (window.markers[id]) {
         window.markers[id].setIcon(window.babyfootIconSelected);
         window.markers[id].openPopup();
-        window.map.setView(window.markers[id].getLatLng(), 17);
+        map.setView(window.markers[id].getLatLng(), 17);
         window.currentSelectedLieuId = id;
       }
     };
@@ -165,174 +109,97 @@
         arrondissementsGeoJSON = await mapService.getArrondissements();
         if (arrondissementsGeoJSON?.features) {
           ardtLayer.addData(arrondissementsGeoJSON);
-          setupFilters(arrondissementsGeoJSON);
+          const wrapper = document.getElementById('selectWrapper');
+          const selArdt = document.createElement('select');
+          selArdt.id = "filterArdt"; selArdt.className = "ctrl-btn";
+          selArdt.innerHTML = '<option value="">Arrondissements</option>' + arrondissementsGeoJSON.features.map(f => `<option value="${f.properties.c_ar || f.properties.nom}">${f.properties.nom || f.properties.l_ar}</option>`).join('');
+          selArdt.onchange = () => loadLieux();
+          wrapper.appendChild(selArdt);
         }
         stationsGeoJSON = await mapService.getStations();
         if (stationsGeoJSON?.features) {
-          stationsGeoJSON.features = stationsGeoJSON.features.filter(f => f.geometry?.type === 'Point');
           L.geoJSON(stationsGeoJSON, { pointToLayer: (f, l) => L.marker(l, { icon: stationIcon }) }).addTo(stationGroup);
         }
-      } catch (err) { console.error("Erreur initialisation couches:", err); }
+      } catch (err) { console.error(err); }
       loadLieux();
     }
 
-    function setupFilters(geoData) {
-      const wrapper = document.getElementById('selectWrapper');
-      
-      const selArdt = document.createElement('select');
-      selArdt.id = "filterArdt";
-      selArdt.className = "ctrl-btn";
-      selArdt.innerHTML = '<option value="">Arrondissements</option>' + 
-        geoData.features.map(f => {
-          const p = f.properties;
-          const n = p.nom || p.l_ar || p.nom_arnd || "Ardt";
-          return `<option value="${(p.c_ar || n).toString()}">${n}</option>`;
-        }).sort().join('');
-      selArdt.onchange = () => loadLieux();
-      
-      const selPrice = document.createElement('select');
-      selPrice.id = "filterPrice";
-      selPrice.className = "ctrl-btn";
-      selPrice.innerHTML = '<option value="">Prix Max</option><option value="0.5">0.50 €</option><option value="1">1.00 €</option><option value="2">2.00 €</option>';
-      selPrice.onchange = () => loadLieux();
-
-      wrapper.append(selArdt, selPrice);
-    }
-
     async function loadLieux() {
-      const listEl = document.getElementById('lieuxList');
-      const labelEl = document.getElementById('activeFilter');
-      const filterArdt = document.getElementById('filterArdt')?.value;
-      const filterPrice = document.getElementById('filterPrice')?.value;
-
       try {
         if (allLieux.length === 0) allLieux = await babyfootService.getAllBabyfoots();
         markerGroup.clearLayers();
+        window.markers = {};
+        
+        const filterArdt = document.getElementById('filterArdt')?.value;
         let filtered = allLieux;
 
         if (filterArdt && arrondissementsGeoJSON) {
           const ar = arrondissementsGeoJSON.features.find(f => (f.properties.c_ar || f.properties.nom).toString() === filterArdt);
           if (ar) {
-            labelEl.textContent = ar.properties.nom || "Filtré";
-            filtered = filtered.filter(l => {
-              const x = parseFloat(l.xcoord), y = parseFloat(l.ycoord);
-              return !isNaN(x) && turf.booleanPointInPolygon(turf.point([x, y]), ar);
-            });
-            const bounds = L.geoJSON(ar).getBounds();
-            if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30] });
+            filtered = filtered.filter(l => turf.booleanPointInPolygon(turf.point([parseFloat(l.xcoord), parseFloat(l.ycoord)]), ar));
+            map.fitBounds(L.geoJSON(ar).getBounds(), { padding: [30, 30] });
           }
-        } else { labelEl.textContent = "Tous les arrondissements"; }
-
-        if (filterPrice) {
-          const maxP = parseFloat(filterPrice);
-          filtered = filtered.filter(l => {
-            const pVal = parseFloat((l.prix || "0").replace(/[^\d.]/g, ''));
-            return (l.prix?.toLowerCase().includes('gratuit')) ? 0 <= maxP : pVal <= maxP;
-          });
         }
 
-        listEl.innerHTML = filtered.length ? filtered.map(l => `
+        document.getElementById('lieuxList').innerHTML = filtered.map(l => `
           <div class="lieu-card" onclick="window.selectLieu('${l.id_lieu}')">
             <div style="font-weight:800; color:var(--rouge)">${l.nom_lieu}</div>
             <div style="font-size:0.8rem; color:#666">${l.adresse || ''}</div>
-          </div>`).join('') : '<div class="empty-msg">Aucun lieu trouvé.</div>';
+          </div>`).join('');
 
         filtered.forEach(l => {
           const lat = parseFloat(l.ycoord), lng = parseFloat(l.xcoord);
           if (isNaN(lat) || isNaN(lng)) return;
 
-          let sInfo = "", nearestStationCoords = null;
+          let sInfo = "", nearestCoords = null;
           if (stationsGeoJSON?.features.length) {
-            const babyPt = turf.point([lng, lat]);
-            const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
-            if (nearest) {
-                const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
-                nearestStationCoords = `${nearest.geometry.coordinates[1]},${nearest.geometry.coordinates[0]}`;
-                sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
-                    <strong>Station: ${nearest.properties.nom || "Proche"}</strong> (${d}m)
-                </div>`;
-            }
+            const nearest = turf.nearestPoint(turf.point([lng, lat]), stationsGeoJSON);
+            const d = turf.distance(turf.point([lng, lat]), nearest, { units: 'meters' }).toFixed(0);
+            nearestCoords = `${nearest.geometry.coordinates[1]},${nearest.geometry.coordinates[0]}`;
+            sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; font-size:0.8rem"><strong>Station : ${nearest.properties.nom || "Proche"}</strong> (${d}m)</div>`;
           }
 
           const dest = `${lat},${lng}`;
-          const urlCurrentPos = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-          const urlFromStation = nearestStationCoords ? `https://www.google.com/maps/dir/?api=1&origin=${nearestStationCoords}&destination=${dest}&travelmode=walking` : null;
-
           const m = L.marker([lat, lng], { icon: window.babyfootIconNormal }).addTo(markerGroup);
           window.markers[l.id_lieu] = m;
 
           m.bindPopup(`
             <div style="min-width:200px">
               <h3 style="color:var(--rouge);margin:0">${l.nom_lieu}</h3>
-              <p style="font-size:0.85rem;color:#555">${l.adresse || ''}</p>
+              <p style="font-size:0.85rem">${l.adresse || ''}</p>
+              <div style="margin:8px 0; font-size:0.75rem"><strong>${l.prix || 'Gratuit'}</strong> • ${l.nom_modele || 'Standard'}</div>
               ${sInfo}
-              <div style="margin-top:10px; display:flex; flex-direction:column; gap:5px">
-                <a href="${urlCurrentPos}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire</a>
-                ${urlFromStation ? `<a href="${urlFromStation}" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis station</a>` : ''}
+              <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px">
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${dest}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire</a>
+                ${nearestCoords ? `<a href="https://www.google.com/maps/dir/?api=1&origin=${nearestCoords}&destination=${dest}&travelmode=walking" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis station</a>` : ''}
               </div>
             </div>`);
-
-          m.on('click', (e) => { L.DomEvent.stopPropagation(e); window.selectLieu(l.id_lieu); });
         });
       } catch (e) { console.error(e); }
     }
 
-    // Gestion du formulaire d'ajout
-    const modalAdd = document.getElementById('modalAdd');
-    const formAdd = document.getElementById('formAddBaby');
-    const selectModel = document.getElementById('fModel');
-
-    async function initAddForm() {
-      try {
-        const models = await babyfootService.getModels();
-        selectModel.innerHTML = models.map(m => `<option value="${m.id_modele}" data-marque="${m.marque || ''}" data-matiere="${m.matière || ''}" data-couleur="${m.couleur || ''}" data-taille="${m.taille || ''}">${m.nom_modele}</option>`).join('');
-        selectModel.onchange = () => {
-          const opt = selectModel.selectedOptions[0];
-          document.getElementById('fMarque').value = opt.dataset.marque;
-          document.getElementById('fMatiere').value = opt.dataset.matiere;
-          document.getElementById('fCouleur').value = opt.dataset.couleur;
-          const [l, w] = (opt.dataset.taille || "0/0").split('/');
-          document.getElementById('fLong').value = l; document.getElementById('fLarg').value = w;
-        };
-        selectModel.onchange();
-      } catch (e) { console.error(e); }
-    }
-
-    document.getElementById('btnAdd').onclick = async () => {
-      const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
-      if (!user.id) return alert("Connectez-vous pour ajouter un lieu.");
-      await initAddForm();
-      alert("Cliquez sur la carte pour placer le babyfoot.");
+    // Modal & Form (Ajout)
+    document.getElementById('btnAdd').onclick = () => {
       map.once('click', async e => {
         document.getElementById('fLat').value = e.latlng.lat;
         document.getElementById('fLng').value = e.latlng.lng;
-        try {
-          const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${e.latlng.lng}&lat=${e.latlng.lat}`);
-          const data = await res.json();
-          if (data.features?.length) document.getElementById('fAdresse').value = data.features[0].properties.label;
-        } catch {}
-        modalAdd.classList.add('show');
+        document.getElementById('modalAdd').classList.add('show');
       });
+      alert("Cliquez sur la carte pour l'emplacement.");
     };
-
-    document.getElementById('btnCancelAdd').onclick = () => modalAdd.classList.remove('show');
-
-    formAdd.onsubmit = async (e) => {
+    
+    document.getElementById('btnCancelAdd').onclick = () => document.getElementById('modalAdd').classList.remove('show');
+    document.getElementById('formAddBaby').onsubmit = async (e) => {
       e.preventDefault();
-      const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
       try {
-        const payload = Object.fromEntries(new FormData(formAdd));
-        payload.id_utilisateur = user.id;
-        payload.taille = `${document.getElementById('fLong').value}/${document.getElementById('fLarg').value}`;
+        const payload = Object.fromEntries(new FormData(e.target));
         await babyfootService.createBabyfoot(payload);
-        alert("Lieu ajouté !");
-        modalAdd.classList.remove('show');
+        document.getElementById('modalAdd').classList.remove('show');
         allLieux = []; loadLieux();
-      } catch (err) { alert("Erreur: " + err.message); }
+      } catch (err) { alert(err.message); }
     };
 
     document.getElementById('drawerHandle').onclick = () => document.getElementById('sidePanel').classList.toggle('expanded');
-
     initLayers();
   })();
 </script>
