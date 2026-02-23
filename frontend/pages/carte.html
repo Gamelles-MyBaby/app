@@ -45,34 +45,6 @@
   <img src="assets/icones/logo_detaille.svg" alt="MyBaby Logo" style="width: 80px; height: auto;">
 </div>
 
-<div id="modalAdd" class="modal">
-  <div class="modal-content">
-    <h2 style="color:var(--rouge); margin-top:0">Ajouter un Babyfoot</h2>
-    <form id="formAddBaby" class="form">
-      <label for="fNomLieu">Nom du lieu</label>
-      <input id="fNomLieu" name="nom_lieu" type="text" maxlength="50" required>
-      <label for="fAdresse">Localisation</label>
-      <input id="fAdresse" name="adresse" type="text" readonly required placeholder="Cliquez sur la carte">
-      <input type="hidden" id="fLat" name="ycoord">
-      <input type="hidden" id="fLng" name="xcoord">
-      <label for="fModel">Modèle</label>
-      <select id="fModel" name="id_modele" required></select>
-      <label for="fMarque">Marque</label>
-      <input id="fMarque" name="marque" type="text" required>
-      <div style="display:flex; gap:10px">
-        <div style="flex:1"><label>Long. (cm)</label><input id="fLong" name="longueur" type="number" step="0.1" required></div>
-        <div style="flex:1"><label>Larg. (cm)</label><input id="fLarg" name="largeur" type="number" step="0.1" required></div>
-      </div>
-      <label for="fMatiere">Matière</label><input id="fMatiere" name="matiere" type="text">
-      <label for="fCouleur">Couleur</label><input id="fCouleur" name="couleur" type="text">
-      <div class="actions" style="margin-top:20px">
-        <button type="button" id="btnCancelAdd" class="btn secondary">Annuler</button>
-        <button type="submit" class="btn primary">Enregistrer</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script type="module">
   import { babyfootService } from './services/babyfootService.js';
   import { mapService } from './services/mapService.js';
@@ -86,13 +58,14 @@
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { maxZoom: 20 }).addTo(map);
+    
     window.babyfootIconNormal = L.icon({ iconUrl: 'assets/icones/loc_point.svg', iconSize: [28, 38], iconAnchor: [14, 38], popupAnchor: [0, -38] });
     window.babyfootIconSelected = L.icon({ iconUrl: 'assets/icones/loc_point_select.svg', iconSize: [36, 48], iconAnchor: [18, 48], popupAnchor: [0, -48] });
     const stationIcon = L.icon({ iconUrl: 'assets/icones/raiway_station_4329-1655540952.png', iconSize: [12, 12], iconAnchor: [6, 12] });
 
     let stationsGeoJSON = null, arrondissementsGeoJSON = null, allLieux = [];
     const markerGroup = L.layerGroup().addTo(map), stationGroup = L.layerGroup().addTo(map);
-    const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
+    const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 3, fillOpacity: 0.05, dashArray: '5, 5' } }).addTo(map);
 
     window.selectLieu = (id) => {
       if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
@@ -106,22 +79,53 @@
 
     async function initLayers() {
       try {
+        // 1. Charger les arrondissements et créer les filtres
         arrondissementsGeoJSON = await mapService.getArrondissements();
         if (arrondissementsGeoJSON?.features) {
           ardtLayer.addData(arrondissementsGeoJSON);
-          const wrapper = document.getElementById('selectWrapper');
-          const selArdt = document.createElement('select');
-          selArdt.id = "filterArdt"; selArdt.className = "ctrl-btn";
-          selArdt.innerHTML = '<option value="">Arrondissements</option>' + arrondissementsGeoJSON.features.map(f => `<option value="${f.properties.c_ar || f.properties.nom}">${f.properties.nom || f.properties.l_ar}</option>`).join('');
-          selArdt.onchange = () => loadLieux();
-          wrapper.appendChild(selArdt);
+          createFilterInterface();
         }
+
+        // 2. Charger les stations
         stationsGeoJSON = await mapService.getStations();
         if (stationsGeoJSON?.features) {
           L.geoJSON(stationsGeoJSON, { pointToLayer: (f, l) => L.marker(l, { icon: stationIcon }) }).addTo(stationGroup);
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Erreur initLayers:", err); }
       loadLieux();
+    }
+
+    function createFilterInterface() {
+      const wrapper = document.getElementById('selectWrapper');
+      wrapper.innerHTML = ''; // Nettoyer
+
+      // Filtre Arrondissement
+      const selArdt = document.createElement('select');
+      selArdt.id = "filterArdt";
+      selArdt.className = "ctrl-btn";
+      let options = '<option value="">Arrondissements</option>';
+      arrondissementsGeoJSON.features.forEach(f => {
+        const p = f.properties;
+        const val = p.c_ar || p.nom || p.objectid;
+        const label = p.nom || p.l_ar || "Ardt";
+        options += `<option value="${val}">${label}</option>`;
+      });
+      selArdt.innerHTML = options;
+      selArdt.onchange = () => loadLieux();
+
+      // Filtre Prix
+      const selPrice = document.createElement('select');
+      selPrice.id = "filterPrice";
+      selPrice.className = "ctrl-btn";
+      selPrice.innerHTML = `
+        <option value="">Prix Max</option>
+        <option value="0">Gratuit</option>
+        <option value="0.5">0.50 €</option>
+        <option value="1">1.00 €</option>
+        <option value="2">2.00 €</option>`;
+      selPrice.onchange = () => loadLieux();
+
+      wrapper.append(selArdt, selPrice);
     }
 
     async function loadLieux() {
@@ -130,103 +134,88 @@
         markerGroup.clearLayers();
         window.markers = {};
         
-        const filterArdt = document.getElementById('filterArdt')?.value;
+        const filterArdtVal = document.getElementById('filterArdt')?.value;
+        const filterPriceVal = document.getElementById('filterPrice')?.value;
+        const labelEl = document.getElementById('activeFilter');
+
         let filtered = allLieux;
 
-        if (filterArdt && arrondissementsGeoJSON) {
-          const ar = arrondissementsGeoJSON.features.find(f => (f.properties.c_ar || f.properties.nom).toString() === filterArdt);
+        // FILTRE ARRONDISSEMENT
+        if (filterArdtVal && arrondissementsGeoJSON) {
+          const ar = arrondissementsGeoJSON.features.find(f => 
+            (f.properties.c_ar || f.properties.nom || f.properties.objectid).toString() === filterArdtVal
+          );
           if (ar) {
-            filtered = filtered.filter(l => turf.booleanPointInPolygon(turf.point([parseFloat(l.xcoord), parseFloat(l.ycoord)]), ar));
+            labelEl.textContent = ar.properties.nom || "Zone filtrée";
+            filtered = filtered.filter(l => {
+              const pt = turf.point([parseFloat(l.xcoord), parseFloat(l.ycoord)]);
+              return turf.booleanPointInPolygon(pt, ar);
+            });
             map.fitBounds(L.geoJSON(ar).getBounds(), { padding: [30, 30] });
           }
+        } else {
+          labelEl.textContent = "Tous les arrondissements";
         }
 
+        // FILTRE PRIX
+        if (filterPriceVal !== "" && filterPriceVal !== undefined) {
+          const maxP = parseFloat(filterPriceVal);
+          filtered = filtered.filter(l => {
+            const p = l.prix?.toString().toLowerCase() || "";
+            if (p.includes("gratuit") || p === "0") return 0 <= maxP;
+            const pVal = parseFloat(p.replace(/[^\d.]/g, ''));
+            return !isNaN(pVal) && pVal <= maxP;
+          });
+        }
+
+        // MAJ LISTE LATERALE
         document.getElementById('lieuxList').innerHTML = filtered.map(l => `
           <div class="lieu-card" onclick="window.selectLieu('${l.id_lieu}')">
             <div style="font-weight:800; color:var(--rouge)">${l.nom_lieu}</div>
             <div style="font-size:0.8rem; color:#666">${l.adresse || ''}</div>
           </div>`).join('');
 
+        // BOUCLE MARQUEURS
         filtered.forEach(l => {
           const lat = parseFloat(l.ycoord), lng = parseFloat(l.xcoord);
           if (isNaN(lat) || isNaN(lng)) return;
-        
-          let sInfo = "";
-          let nearestCoords = null; // Variable pour le lien Google Maps
-        
-          if (stationsGeoJSON && stationsGeoJSON.features.length) {
+
+          let sInfo = "", nearestCoords = null;
+          if (stationsGeoJSON?.features.length) {
             try {
               const babyPt = turf.point([lng, lat]);
               const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
-              if (nearest) {
-                const p = nearest.properties;
-                const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
-                
-                // On récupère les coordonnées de la station trouvée
-                const sLat = nearest.geometry.coordinates[1];
-                const sLng = nearest.geometry.coordinates[0];
-                nearestCoords = `${sLat},${sLng}`;
-        
-                // On cherche le nom (plusieurs clés possibles selon la source de données)
-                let sName = p.nom || p.libelle || p.nom_zda || p.nom_gare || "Station";
-                const sLines = p.res_com || p.lignes || "N/A";
-        
-                sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
-                    <strong>Station: ${sName}</strong><br>
-                    Lignes: ${sLines} (${d}m)
-                  </div>`;
-              }
-            } catch (e) { console.error("Erreur Turf:", e); }
+              const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
+              const p = nearest.properties;
+              const sName = p.nom || p.libelle || p.nom_gare || "Station";
+              nearestCoords = `${nearest.geometry.coordinates[1]},${nearest.geometry.coordinates[0]}`;
+              
+              sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
+                  <strong>Station: ${sName}</strong> (${d}m)
+                </div>`;
+            } catch(e) {}
           }
-        
-          const dest = `${lat},${lng}`;
+
           const m = L.marker([lat, lng], { icon: window.babyfootIconNormal }).addTo(markerGroup);
           window.markers[l.id_lieu] = m;
-        
-          // Construction du contenu de la popup avec les variables corrigées
-          const urlMe = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-          const urlStation = nearestCoords ? `https://www.google.com/maps/dir/?api=1&origin=${nearestCoords}&destination=${dest}&travelmode=walking` : null;
-        
+
+          const dest = `${lat},${lng}`;
           m.bindPopup(`
             <div style="min-width:200px">
               <h3 style="color:var(--rouge);margin:0">${l.nom_lieu}</h3>
-              <p style="font-size:0.85rem;margin:5px 0">${l.adresse || ''}</p>
+              <p style="font-size:0.85rem">${l.adresse || ''}</p>
               <div style="margin:8px 0; font-size:0.75rem"><strong>${l.prix || 'Gratuit'}</strong> • ${l.nom_modele || 'Standard'}</div>
               ${sInfo}
               <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px">
-                <a href="${urlMe}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire (Position actuelle)</a>
-                ${urlStation ? `<a href="${urlStation}" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis la station</a>` : ''}
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${dest}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire</a>
+                ${nearestCoords ? `<a href="https://www.google.com/maps/dir/?api=1&origin=${nearestCoords}&destination=${dest}&travelmode=walking" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis station</a>` : ''}
               </div>
             </div>`);
-        
-          m.on('click', (e) => {
-            L.DomEvent.stopPropagation(e);
-            window.selectLieu(l.id_lieu);
-          });
-        });
-      } catch (e) { console.error(e); }
-    }
 
-    // Modal & Form (Ajout)
-    document.getElementById('btnAdd').onclick = () => {
-      map.once('click', async e => {
-        document.getElementById('fLat').value = e.latlng.lat;
-        document.getElementById('fLng').value = e.latlng.lng;
-        document.getElementById('modalAdd').classList.add('show');
-      });
-      alert("Cliquez sur la carte pour l'emplacement.");
-    };
-    
-    document.getElementById('btnCancelAdd').onclick = () => document.getElementById('modalAdd').classList.remove('show');
-    document.getElementById('formAddBaby').onsubmit = async (e) => {
-      e.preventDefault();
-      try {
-        const payload = Object.fromEntries(new FormData(e.target));
-        await babyfootService.createBabyfoot(payload);
-        document.getElementById('modalAdd').classList.remove('show');
-        allLieux = []; loadLieux();
-      } catch (err) { alert(err.message); }
-    };
+          m.on('click', (e) => { L.DomEvent.stopPropagation(e); window.selectLieu(l.id_lieu); });
+        });
+      } catch (e) { console.error("Erreur loadLieux:", e); }
+    }
 
     document.getElementById('drawerHandle').onclick = () => document.getElementById('sidePanel').classList.toggle('expanded');
     initLayers();
