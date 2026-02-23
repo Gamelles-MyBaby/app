@@ -150,8 +150,10 @@
         filtered.forEach(l => {
           const lat = parseFloat(l.ycoord), lng = parseFloat(l.xcoord);
           if (isNaN(lat) || isNaN(lng)) return;
-
+        
           let sInfo = "";
+          let nearestCoords = null; // Variable pour le lien Google Maps
+        
           if (stationsGeoJSON && stationsGeoJSON.features.length) {
             try {
               const babyPt = turf.point([lng, lat]);
@@ -159,36 +161,48 @@
               if (nearest) {
                 const p = nearest.properties;
                 const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
-
-                let sName = "Inconnue";
-                const nameKeys = ['nom_zda', 'nom_ptes', 'nom_gares', 'libelle', 'label', 'nom', 'text'];
-                for (let key of nameKeys) {
-                  const val = p[key];
-                  if (val) { sName = val; break; }
-                }
-
+                
+                // On récupère les coordonnées de la station trouvée
+                const sLat = nearest.geometry.coordinates[1];
+                const sLng = nearest.geometry.coordinates[0];
+                nearestCoords = `${sLat},${sLng}`;
+        
+                // On cherche le nom (plusieurs clés possibles selon la source de données)
+                let sName = p.nom || p.libelle || p.nom_zda || p.nom_gare || "Station";
                 const sLines = p.res_com || p.lignes || "N/A";
+        
                 sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
                     <strong>Station: ${sName}</strong><br>
                     Lignes: ${sLines} (${d}m)
                   </div>`;
               }
-            } catch (e) { }
+            } catch (e) { console.error("Erreur Turf:", e); }
           }
+        
+          const dest = `${lat},${lng}`;
           const m = L.marker([lat, lng], { icon: window.babyfootIconNormal }).addTo(markerGroup);
           window.markers[l.id_lieu] = m;
-
+        
+          // Construction du contenu de la popup avec les variables corrigées
+          const urlMe = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+          const urlStation = nearestCoords ? `https://www.google.com/maps/dir/?api=1&origin=${nearestCoords}&destination=${dest}&travelmode=walking` : null;
+        
           m.bindPopup(`
             <div style="min-width:200px">
               <h3 style="color:var(--rouge);margin:0">${l.nom_lieu}</h3>
-              <p style="font-size:0.85rem">${l.adresse || ''}</p>
+              <p style="font-size:0.85rem;margin:5px 0">${l.adresse || ''}</p>
               <div style="margin:8px 0; font-size:0.75rem"><strong>${l.prix || 'Gratuit'}</strong> • ${l.nom_modele || 'Standard'}</div>
               ${sInfo}
               <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px">
-                <a href="https://www.google.com/maps/dir/?api=1&destination=${dest}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire</a>
-                ${nearestCoords ? `<a href="https://www.google.com/maps/dir/?api=1&origin=${nearestCoords}&destination=${dest}&travelmode=walking" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis station</a>` : ''}
+                <a href="${urlMe}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire (Position actuelle)</a>
+                ${urlStation ? `<a href="${urlStation}" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis la station</a>` : ''}
               </div>
             </div>`);
+        
+          m.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
+            window.selectLieu(l.id_lieu);
+          });
         });
       } catch (e) { console.error(e); }
     }
