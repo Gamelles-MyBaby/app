@@ -100,19 +100,42 @@
       wrapper.innerHTML = ''; // Nettoyer
 
       // Filtre Arrondissement
-      const selArdt = document.createElement('select');
-      selArdt.id = "filterArdt";
-      selArdt.className = "ctrl-btn";
-      let options = '<option value="">Arrondissements</option>';
-      arrondissementsGeoJSON.features.forEach(f => {
-        const p = f.properties;
-        const val = p.c_ar || p.nom || p.objectid;
-        const label = p.nom || p.l_ar || "Ardt";
-        options += `<option value="${val}">${label}</option>`;
-      });
-      selArdt.innerHTML = options;
-      selArdt.onchange = () => loadLieux();
-
+     // --- LOGIQUE DE FILTRAGE SPATIAL ---
+      if (filterArdtVal && arrondissementsGeoJSON) {
+          // 1. Trouver l'arrondissement sélectionné
+          const ar = arrondissementsGeoJSON.features.find(f => {
+              const p = f.properties;
+              // On compare avec toutes les clés possibles pour être sûr
+              return (p.c_ar || p.nom || p.objectid || p.l_ar).toString() === filterArdtVal.toString();
+          });
+      
+          if (ar) {
+              labelEl.textContent = ar.properties.nom || ar.properties.l_ar || "Zone filtrée";
+              
+              filtered = filtered.filter(l => {
+                  const x = parseFloat(l.xcoord);
+                  const y = parseFloat(l.ycoord);
+                  
+                  if (isNaN(x) || isNaN(y)) return false;
+      
+                  try {
+                      // Création de points et polygones valides pour Turf
+                      const pt = turf.point([x, y]);
+                      // On s'assure que 'ar' est un polygone valide
+                      return turf.booleanPointInPolygon(pt, ar);
+                  } catch (e) {
+                      console.error("Erreur de calcul spatial Turf:", e);
+                      return false;
+                  }
+              });
+      
+              // Zoom automatique sur l'arrondissement
+              const tempLayer = L.geoJSON(ar);
+              map.fitBounds(tempLayer.getBounds(), { padding: [30, 30] });
+          }
+      } else {
+          labelEl.textContent = "Tous les arrondissements";
+      }
       // Filtre Prix
       const selPrice = document.createElement('select');
       selPrice.id = "filterPrice";
