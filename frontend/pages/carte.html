@@ -151,15 +151,30 @@
           const lat = parseFloat(l.ycoord), lng = parseFloat(l.xcoord);
           if (isNaN(lat) || isNaN(lng)) return;
 
-          let sInfo = "", nearestCoords = null;
-          if (stationsGeoJSON?.features.length) {
-            const nearest = turf.nearestPoint(turf.point([lng, lat]), stationsGeoJSON);
-            const d = turf.distance(turf.point([lng, lat]), nearest, { units: 'meters' }).toFixed(0);
-            nearestCoords = `${nearest.geometry.coordinates[1]},${nearest.geometry.coordinates[0]}`;
-            sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; font-size:0.8rem"><strong>Station : ${nearest.properties.nom || "Proche"}</strong> (${d}m)</div>`;
-          }
+          let sInfo = "";
+          if (stationsGeoJSON && stationsGeoJSON.features.length) {
+            try {
+              const babyPt = turf.point([lng, lat]);
+              const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
+              if (nearest) {
+                const p = nearest.properties;
+                const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
 
-          const dest = `${lat},${lng}`;
+                let sName = "Inconnue";
+                const nameKeys = ['nom_zda', 'nom_ptes', 'nom_gares', 'libelle', 'label', 'nom', 'text'];
+                for (let key of nameKeys) {
+                  const val = p[key];
+                  if (val) { sName = val; break; }
+                }
+
+                const sLines = p.res_com || p.lignes || "N/A";
+                sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
+                    <strong>Station: ${sName}</strong><br>
+                    Lignes: ${sLines} (${d}m)
+                  </div>`;
+              }
+            } catch (e) { }
+          }
           const m = L.marker([lat, lng], { icon: window.babyfootIconNormal }).addTo(markerGroup);
           window.markers[l.id_lieu] = m;
 
