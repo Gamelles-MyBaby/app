@@ -1,4 +1,8 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="pages/carte.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
 <div class="map-container">
   <aside class="side-panel" id="sidePanel">
     <button class="drawer-handle" id="drawerHandle" aria-label="Déplier la liste">
@@ -43,7 +47,6 @@
   <img src="assets/icones/logo_detaille.svg" alt="MyBaby Logo" style="width: 80px; height: auto;">
 </div>
 
-<!-- Modal Ajout Babyfoot -->
 <div id="modalAdd" class="modal">
   <div class="modal-content">
     <h2 style="color:var(--rouge); margin-top:0">Ajouter un Babyfoot</h2>
@@ -64,12 +67,12 @@
 
       <div style="display:flex; gap:10px">
         <div style="flex:1">
-          <label>Longueur (cm)</label>
-          <input id="fLong" type="number" step="0.1" required>
+          <label for="fLong">Longueur (cm)</label>
+          <input id="fLong" name="longueur" type="number" step="0.1" required>
         </div>
         <div style="flex:1">
-          <label>Largeur (cm)</label>
-          <input id="fLarg" type="number" step="0.1" required>
+          <label for="fLarg">Largeur (cm)</label>
+          <input id="fLarg" name="largeur" type="number" step="0.1" required>
         </div>
       </div>
 
@@ -101,33 +104,24 @@
 
     const map = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 12);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    });
+
+    // Exposition de la map à window pour les clics HTML
+    window.map = map;
 
     const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 20
+      subdomains: 'abcd', maxZoom: 20
+    }).addTo(map);
+
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, attribution: '&copy; OpenStreetMap'
     });
 
     const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-      maxZoom: 20,
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      attribution: '&copy; Google'
+      maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '&copy; Google'
     });
 
-    // Définir la vue par défaut
-    cartoDB.addTo(map);
-
-    const baseMaps = {
-      'CartoDB (Clair)': cartoDB,
-      'OpenStreetMap': osm,
-      'Google Satellite': googleSat
-    };
-
-    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+    L.control.layers({ "CartoDB": cartoDB, "OpenStreetMap": osm, "Satellite": googleSat }, null, { position: 'topright' }).addTo(map);
 
     window.babyfootIconNormal = L.icon({
       iconUrl: 'assets/icones/loc_point.svg',
@@ -139,23 +133,9 @@
       iconSize: [36, 48], iconAnchor: [18, 48], popupAnchor: [0, -48]
     });
 
-    window.currentSelectedLieuId = null;
-
-    window.selectLieu = (id) => {
-      if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) {
-        window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
-      }
-      if (window.markers[id]) {
-        window.markers[id].setIcon(window.babyfootIconSelected);
-        window.markers[id].openPopup();
-        map.setView(window.markers[id].getLatLng(), 17);
-        window.currentSelectedLieuId = id;
-      }
-    };
-
     const stationIcon = L.icon({
       iconUrl: 'assets/icones/raiway_station_4329-1655540952.png',
-      iconSize: [12, 12], iconAnchor: [6, 12], popupAnchor: [0, -12]
+      iconSize: [12, 12], iconAnchor: [6, 12]
     });
 
     let stationsGeoJSON = null;
@@ -165,49 +145,58 @@
     const stationGroup = L.layerGroup().addTo(map);
     const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
 
+    window.currentSelectedLieuId = null;
+    window.markers = {};
+
+    window.selectLieu = (id) => {
+      if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) {
+        window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
+      }
+      if (window.markers[id]) {
+        window.markers[id].setIcon(window.babyfootIconSelected);
+        window.markers[id].openPopup();
+        window.map.setView(window.markers[id].getLatLng(), 17);
+        window.currentSelectedLieuId = id;
+      }
+    };
+
     async function initLayers() {
       try {
         arrondissementsGeoJSON = await mapService.getArrondissements();
-        if (arrondissementsGeoJSON && arrondissementsGeoJSON.features) {
+        if (arrondissementsGeoJSON?.features) {
           ardtLayer.addData(arrondissementsGeoJSON);
-
-          // Arrondissement Filter
-          const selArdt = document.createElement('select');
-          selArdt.id = "filterArdt";
-          selArdt.className = "ctrl-btn";
-          selArdt.innerHTML = '<option value="">Arrondissements</option>' +
-            arrondissementsGeoJSON.features.map(f => {
-              const p = f.properties;
-              const n = p.nom || p.l_ar || p.l_ar_off || p.nom_arnd || "Ardt";
-              const i = (p.c_ar || p.objectid || n).toString();
-              return `<option value="${i}">${n}</option>`;
-            }).sort().join('');
-          document.getElementById('selectWrapper').appendChild(selArdt);
-          selArdt.onchange = () => loadLieux();
-
-          // Price Filter
-          const selPrice = document.createElement('select');
-          selPrice.id = "filterPrice";
-          selPrice.className = "ctrl-btn";
-          selPrice.innerHTML = `
-            <option value="">Prix Max</option>
-            <option value="0.5">0.50 €</option>
-            <option value="1">1.00 €</option>
-            <option value="2">2.00 €</option>
-          `;
-          document.getElementById('selectWrapper').appendChild(selPrice);
-          selPrice.onchange = () => loadLieux();
+          setupFilters(arrondissementsGeoJSON);
         }
-
         stationsGeoJSON = await mapService.getStations();
-        if (stationsGeoJSON && stationsGeoJSON.features) {
-          stationsGeoJSON.features = stationsGeoJSON.features.filter(f => f.geometry && f.geometry.type === 'Point');
+        if (stationsGeoJSON?.features) {
+          stationsGeoJSON.features = stationsGeoJSON.features.filter(f => f.geometry?.type === 'Point');
           L.geoJSON(stationsGeoJSON, { pointToLayer: (f, l) => L.marker(l, { icon: stationIcon }) }).addTo(stationGroup);
         }
-      } catch (err) {
-        console.error("Erreur lors de l'initialisation des couches :", err);
-      }
+      } catch (err) { console.error("Erreur initialisation couches:", err); }
       loadLieux();
+    }
+
+    function setupFilters(geoData) {
+      const wrapper = document.getElementById('selectWrapper');
+      
+      const selArdt = document.createElement('select');
+      selArdt.id = "filterArdt";
+      selArdt.className = "ctrl-btn";
+      selArdt.innerHTML = '<option value="">Arrondissements</option>' + 
+        geoData.features.map(f => {
+          const p = f.properties;
+          const n = p.nom || p.l_ar || p.nom_arnd || "Ardt";
+          return `<option value="${(p.c_ar || n).toString()}">${n}</option>`;
+        }).sort().join('');
+      selArdt.onchange = () => loadLieux();
+      
+      const selPrice = document.createElement('select');
+      selPrice.id = "filterPrice";
+      selPrice.className = "ctrl-btn";
+      selPrice.innerHTML = '<option value="">Prix Max</option><option value="0.5">0.50 €</option><option value="1">1.00 €</option><option value="2">2.00 €</option>';
+      selPrice.onchange = () => loadLieux();
+
+      wrapper.append(selArdt, selPrice);
     }
 
     async function loadLieux() {
@@ -218,194 +207,131 @@
 
       try {
         if (allLieux.length === 0) allLieux = await babyfootService.getAllBabyfoots();
-
         markerGroup.clearLayers();
         let filtered = allLieux;
 
-        // Apply Ardt Filter
         if (filterArdt && arrondissementsGeoJSON) {
-          const ar = arrondissementsGeoJSON.features.find(f => {
-            const p = f.properties;
-            return (p.c_ar || p.objectid || p.nom || p.l_ar || p.l_ar_off).toString() === filterArdt;
-          });
+          const ar = arrondissementsGeoJSON.features.find(f => (f.properties.c_ar || f.properties.nom).toString() === filterArdt);
           if (ar) {
             labelEl.textContent = ar.properties.nom || "Filtré";
             filtered = filtered.filter(l => {
               const x = parseFloat(l.xcoord), y = parseFloat(l.ycoord);
-              if (isNaN(x) || isNaN(y)) return false;
-              try { return turf.booleanPointInPolygon(turf.point([x, y]), ar); } catch (e) { return false; }
+              return !isNaN(x) && turf.booleanPointInPolygon(turf.point([x, y]), ar);
             });
             const bounds = L.geoJSON(ar).getBounds();
             if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30] });
           }
         } else { labelEl.textContent = "Tous les arrondissements"; }
 
-        // Apply Price Filter
         if (filterPrice) {
           const maxP = parseFloat(filterPrice);
           filtered = filtered.filter(l => {
-            if (!l.prix || l.prix.toLowerCase().includes('gratuit')) return 0 <= maxP;
-            const pVal = parseFloat(l.prix.replace(/[^\d.]/g, ''));
-            return !isNaN(pVal) && pVal <= maxP;
+            const pVal = parseFloat((l.prix || "0").replace(/[^\d.]/g, ''));
+            return (l.prix?.toLowerCase().includes('gratuit')) ? 0 <= maxP : pVal <= maxP;
           });
         }
 
-        listEl.innerHTML = filtered.length ? filtered.map(l => {
-          const p = l.prix || '';
-          const displayPrice = (p.includes('€') || p.toLowerCase().includes('gratuit') || p === '') ? (p || 'Gratuit') : p + ' €';
-          return `
+        listEl.innerHTML = filtered.length ? filtered.map(l => `
           <div class="lieu-card" onclick="window.selectLieu('${l.id_lieu}')">
             <div style="font-weight:800; color:var(--rouge)">${l.nom_lieu}</div>
             <div style="font-size:0.8rem; color:#666">${l.adresse || ''}</div>
-            <div style="font-size:0.75rem; font-weight:700; margin-top:4px">${displayPrice} • ${l.nom_modele || 'Modèle inconnu'}</div>
-          </div>`;
-        }).join('') : '<div class="empty-msg">Aucun lieu trouvé.</div>';
+          </div>`).join('') : '<div class="empty-msg">Aucun lieu trouvé.</div>';
 
-        window.markers = {};
         filtered.forEach(l => {
           const lat = parseFloat(l.ycoord), lng = parseFloat(l.xcoord);
           if (isNaN(lat) || isNaN(lng)) return;
 
-          let sInfo = "";
-          if (stationsGeoJSON && stationsGeoJSON.features.length) {
-            try {
-              const babyPt = turf.point([lng, lat]);
-              const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
-              if (nearest) {
-                const p = nearest.properties;
+          let sInfo = "", nearestStationCoords = null;
+          if (stationsGeoJSON?.features.length) {
+            const babyPt = turf.point([lng, lat]);
+            const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
+            if (nearest) {
                 const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
-
-                let sName = "Inconnue";
-                const nameKeys = ['nom_zda', 'nom_ptes', 'nom_gares', 'libelle', 'label', 'nom', 'text'];
-                for (let key of nameKeys) {
-                  const val = p[key];
-                  if (val) { sName = val; break; }
-                }
-
-                const sLines = p.res_com || p.lignes || "N/A";
+                nearestStationCoords = `${nearest.geometry.coordinates[1]},${nearest.geometry.coordinates[0]}`;
                 sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
-                    <strong>Station: ${sName}</strong><br>
-                    Lignes: ${sLines} (${d}m)
-                  </div>`;
-              }
-            } catch (e) { }
+                    <strong>Station: ${nearest.properties.nom || "Proche"}</strong> (${d}m)
+                </div>`;
+            }
           }
+
+          const dest = `${lat},${lng}`;
+          const urlCurrentPos = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+          const urlFromStation = nearestStationCoords ? `https://www.google.com/maps/dir/?api=1&origin=${nearestStationCoords}&destination=${dest}&travelmode=walking` : null;
+
           const m = L.marker([lat, lng], { icon: window.babyfootIconNormal }).addTo(markerGroup);
           window.markers[l.id_lieu] = m;
 
-          const p = l.prix || '';
-          const displayPrice = (p.includes('€') || p.toLowerCase().includes('gratuit') || p === '') ? (p || 'Gratuit') : p + ' €';
-          const popupContent = `
-            <div style="min-width:180px">
-              <h3 style="color:var(--rouge);margin:0 0 4px 0">${l.nom_lieu}</h3>
-              <p style="font-size:0.85rem;margin:0;color:#555">${l.adresse || ''}</p>
-              <div style="margin-top:8px; display:flex; gap:8px; font-size:0.8rem">
-                <span style="background:var(--rouge); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700">${displayPrice}</span>
-                <span style="background:#eee; padding:2px 6px; border-radius:4px">${l.nom_modele || 'Modèle classique'}</span>
-              </div>
+          m.bindPopup(`
+            <div style="min-width:200px">
+              <h3 style="color:var(--rouge);margin:0">${l.nom_lieu}</h3>
+              <p style="font-size:0.85rem;color:#555">${l.adresse || ''}</p>
               ${sInfo}
-            </div>
-          `;
+              <div style="margin-top:10px; display:flex; flex-direction:column; gap:5px">
+                <a href="${urlCurrentPos}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire</a>
+                ${urlFromStation ? `<a href="${urlFromStation}" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis station</a>` : ''}
+              </div>
+            </div>`);
 
-          m.bindPopup(popupContent);
-
-          m.on('click', (e) => {
-            L.DomEvent.stopPropagation(e);
-            window.selectLieu(l.id_lieu);
-          });
+          m.on('click', (e) => { L.DomEvent.stopPropagation(e); window.selectLieu(l.id_lieu); });
         });
       } catch (e) { console.error(e); }
     }
 
+    // Gestion du formulaire d'ajout
     const modalAdd = document.getElementById('modalAdd');
     const formAdd = document.getElementById('formAddBaby');
-    const btnCancelAdd = document.getElementById('btnCancelAdd');
     const selectModel = document.getElementById('fModel');
 
     async function initAddForm() {
       try {
         const models = await babyfootService.getModels();
         selectModel.innerHTML = models.map(m => `<option value="${m.id_modele}" data-marque="${m.marque || ''}" data-matiere="${m.matière || ''}" data-couleur="${m.couleur || ''}" data-taille="${m.taille || ''}">${m.nom_modele}</option>`).join('');
-
         selectModel.onchange = () => {
           const opt = selectModel.selectedOptions[0];
           document.getElementById('fMarque').value = opt.dataset.marque;
           document.getElementById('fMatiere').value = opt.dataset.matiere;
           document.getElementById('fCouleur').value = opt.dataset.couleur;
           const [l, w] = (opt.dataset.taille || "0/0").split('/');
-          document.getElementById('fLong').value = l || "";
-          document.getElementById('fLarg').value = w || "";
+          document.getElementById('fLong').value = l; document.getElementById('fLarg').value = w;
         };
-        if (selectModel.onchange) selectModel.onchange();
-      } catch (e) { console.error("Error loading models:", e); }
+        selectModel.onchange();
+      } catch (e) { console.error(e); }
     }
 
     document.getElementById('btnAdd').onclick = async () => {
       const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
-      if (!user.id_utilisateur && !user.id) {
-        alert("Veuillez vous connecter pour ajouter un lieu.");
-        window.location.hash = '#login';
-        return;
-      }
-
+      if (!user.id) return alert("Connectez-vous pour ajouter un lieu.");
       await initAddForm();
-      alert("Cliquez sur l'emplacement précis du babyfoot sur la carte...");
-
+      alert("Cliquez sur la carte pour placer le babyfoot.");
       map.once('click', async e => {
-        const { lat, lng } = e.latlng;
-        document.getElementById('fLat').value = lat;
-        document.getElementById('fLng').value = lng;
-
+        document.getElementById('fLat').value = e.latlng.lat;
+        document.getElementById('fLng').value = e.latlng.lng;
         try {
-          const revRes = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${lng}&lat=${lat}`);
-          const revData = await revRes.json();
-          if (revData.features && revData.features.length > 0) {
-            document.getElementById('fAdresse').value = revData.features[0].properties.label;
-          }
-        } catch (err) { }
-
+          const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${e.latlng.lng}&lat=${e.latlng.lat}`);
+          const data = await res.json();
+          if (data.features?.length) document.getElementById('fAdresse').value = data.features[0].properties.label;
+        } catch {}
         modalAdd.classList.add('show');
       });
     };
 
-    btnCancelAdd.onclick = () => modalAdd.classList.remove('show');
+    document.getElementById('btnCancelAdd').onclick = () => modalAdd.classList.remove('show');
 
     formAdd.onsubmit = async (e) => {
       e.preventDefault();
       const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
-
       try {
-        const payload = {
-          nom_lieu: formAdd.nom_lieu.value,
-          adresse: formAdd.adresse.value,
-          ville: "Paris",
-          id_modele: formAdd.id_modele.value,
-          id_utilisateur: user.id_utilisateur || user.id,
-          xcoord: parseFloat(formAdd.xcoord.value),
-          ycoord: parseFloat(formAdd.ycoord.value),
-          taille: `${formAdd.fLong.value}/${formAdd.fLarg.value}`,
-          marque: formAdd.marque.value,
-          matiere: formAdd.matiere.value,
-          couleur: formAdd.couleur.value
-        };
-
+        const payload = Object.fromEntries(new FormData(formAdd));
+        payload.id_utilisateur = user.id;
+        payload.taille = `${document.getElementById('fLong').value}/${document.getElementById('fLarg').value}`;
         await babyfootService.createBabyfoot(payload);
-        alert("Lieu ajouté avec succès !");
+        alert("Lieu ajouté !");
         modalAdd.classList.remove('show');
-        allLieux = [];
-        loadLieux();
-      } catch (err) {
-        alert("Erreur lors de l'ajout : " + err.message);
-      }
+        allLieux = []; loadLieux();
+      } catch (err) { alert("Erreur: " + err.message); }
     };
 
-    const sidePanel = document.getElementById('sidePanel');
-    const drawerHandle = document.getElementById('drawerHandle');
-    if (drawerHandle && sidePanel) {
-      drawerHandle.addEventListener('click', () => {
-        sidePanel.classList.toggle('expanded');
-      });
-    }
+    document.getElementById('drawerHandle').onclick = () => document.getElementById('sidePanel').classList.toggle('expanded');
 
     initLayers();
   })();
