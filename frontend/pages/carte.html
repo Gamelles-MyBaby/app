@@ -19,21 +19,6 @@
 
   <div class="map-wrap">
     <div id="map" aria-label="Carte des babyfoots"></div>
-    <div class="legend" id="mapLegend">
-      <strong>Légende</strong>
-      <div class="legend-item">
-        <img src="assets/icones/loc_point.svg" style="width:18px; height:auto">
-        <span>Babyfoot</span>
-      </div>
-      <div class="legend-item">
-        <div style="width:14px; height:2px; background:#BC1515; border:1px dashed #BC1515"></div>
-        <span>Arrondissement</span>
-      </div>
-      <div class="legend-item">
-        <img src="assets/icones/raiway_station_4329-1655540952.png" style="width:18px; height:18px">
-        <span>Station Ferrée</span>
-      </div>
-    </div>
     <div class="controls">
       <div id="selectWrapper" class="ctrl-group"></div>
       <button id="btnAdd" class="ctrl-btn" title="Ajouter un lieu">＋ Ajouter</button>
@@ -53,14 +38,12 @@
     'use strict';
     if (typeof L === 'undefined') return;
 
-    // Initialisation Carte
     const map = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 12);
     window.map = map;
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { maxZoom: 20 }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { maxZoom: 20 }).addTo(map);
     
-    // Icônes
     window.babyfootIconNormal = L.icon({ iconUrl: 'assets/icones/loc_point.svg', iconSize: [28, 38], iconAnchor: [14, 38], popupAnchor: [0, -38] });
     window.babyfootIconSelected = L.icon({ iconUrl: 'assets/icones/loc_point_select.svg', iconSize: [36, 48], iconAnchor: [18, 48], popupAnchor: [0, -48] });
     const stationIcon = L.icon({ iconUrl: 'assets/icones/raiway_station_4329-1655540952.png', iconSize: [12, 12], iconAnchor: [6, 12] });
@@ -69,14 +52,10 @@
     const markerGroup = L.layerGroup().addTo(map), stationGroup = L.layerGroup().addTo(map);
     const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 2, fillOpacity: 0.05, dashArray: '5, 5' } }).addTo(map);
 
-    window.currentSelectedLieuId = null;
     window.markers = {};
 
-    // Fonction de sélection
     window.selectLieu = (id) => {
-      if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) {
-        window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
-      }
+      if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
       if (window.markers[id]) {
         window.markers[id].setIcon(window.babyfootIconSelected);
         window.markers[id].openPopup();
@@ -85,7 +64,6 @@
       }
     };
 
-    // Chargement des couches de données
     async function initLayers() {
       try {
         arrondissementsGeoJSON = await mapService.getArrondissements();
@@ -97,11 +75,10 @@
         if (stationsGeoJSON?.features) {
           L.geoJSON(stationsGeoJSON, { pointToLayer: (f, l) => L.marker(l, { icon: stationIcon }) }).addTo(stationGroup);
         }
-      } catch (err) { console.error("Erreur initLayers:", err); }
+      } catch (err) { console.error(err); }
       loadLieux();
     }
 
-    // Création des menus déroulants
     function setupFilters() {
       const wrapper = document.getElementById('selectWrapper');
       wrapper.innerHTML = '';
@@ -109,64 +86,56 @@
       const selArdt = document.createElement('select');
       selArdt.id = "filterArdt";
       selArdt.className = "ctrl-btn";
-      let options = '<option value="">Arrondissements</option>';
+      let opts = '<option value="">Arrondissements</option>';
       arrondissementsGeoJSON.features.forEach(f => {
         const p = f.properties;
         const val = p.c_ar || p.nom || p.objectid;
-        const label = p.nom || p.l_ar || "Ardt";
-        options += `<option value="${val}">${label}</option>`;
+        opts += `<option value="${val}">${p.nom || p.l_ar || "Ardt"}</option>`;
       });
-      selArdt.innerHTML = options;
+      selArdt.innerHTML = opts;
       selArdt.onchange = () => loadLieux();
 
       const selPrice = document.createElement('select');
       selPrice.id = "filterPrice";
       selPrice.className = "ctrl-btn";
-      selPrice.innerHTML = `
-        <option value="">Prix Max</option>
-        <option value="0">Gratuit</option>
-        <option value="0.5">0.50 €</option>
-        <option value="1">1.00 €</option>
-        <option value="2">2.00 €</option>`;
+      selPrice.innerHTML = '<option value="">Prix Max</option><option value="0">Gratuit</option><option value="1">1.00 €</option><option value="2">2.00 €</option>';
       selPrice.onchange = () => loadLieux();
 
       wrapper.append(selArdt, selPrice);
     }
 
-    // Chargement et filtrage des babyfoots
     async function loadLieux() {
       try {
         if (allLieux.length === 0) allLieux = await babyfootService.getAllBabyfoots();
-        
         markerGroup.clearLayers();
         window.markers = {};
         
-        const filterArdtVal = document.getElementById('filterArdt')?.value;
-        const filterPriceVal = document.getElementById('filterPrice')?.value;
+        const filterArdt = document.getElementById('filterArdt')?.value;
+        const filterPrice = document.getElementById('filterPrice')?.value;
         const labelEl = document.getElementById('activeFilter');
-
         let filtered = allLieux;
 
-        // FILTRE SPATIAL (Arrondissement)
-        if (filterArdtVal && arrondissementsGeoJSON) {
-          const ar = arrondissementsGeoJSON.features.find(f => 
-            (f.properties.c_ar || f.properties.nom || f.properties.objectid).toString() === filterArdtVal.toString()
-          );
+        // --- VOTRE FILTRE ARRONDISSEMENT ---
+        if (filterArdt && arrondissementsGeoJSON) {
+          const ar = arrondissementsGeoJSON.features.find(f => {
+            const p = f.properties;
+            return (p.c_ar || p.objectid || p.nom || p.l_ar || p.l_ar_off).toString() === filterArdt;
+          });
           if (ar) {
-            labelEl.textContent = ar.properties.nom || "Zone filtrée";
+            labelEl.textContent = ar.properties.nom || "Filtré";
             filtered = filtered.filter(l => {
-              const pt = turf.point([parseFloat(l.xcoord), parseFloat(l.ycoord)]);
-              return turf.booleanPointInPolygon(pt, ar);
+              const x = parseFloat(l.xcoord), y = parseFloat(l.ycoord);
+              if (isNaN(x) || isNaN(y)) return false;
+              try { return turf.booleanPointInPolygon(turf.point([x, y]), ar); } catch (e) { return false; }
             });
-            map.fitBounds(L.geoJSON(ar).getBounds(), { padding: [30, 30] });
+            const bounds = L.geoJSON(ar).getBounds();
+            if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30] });
           }
-        } else {
-          labelEl.textContent = "Tous les arrondissements";
-        }
+        } else { labelEl.textContent = "Tous les arrondissements"; }
 
-        // FILTRE PRIX
-        if (filterPriceVal !== "" && filterPriceVal !== undefined) {
-          const maxP = parseFloat(filterPriceVal);
+        // --- FILTRE PRIX ---
+        if (filterPrice !== "" && filterPrice !== undefined) {
+          const maxP = parseFloat(filterPrice);
           filtered = filtered.filter(l => {
             const pStr = l.prix?.toString().toLowerCase() || "";
             if (pStr.includes("gratuit") || pStr === "0") return 0 <= maxP;
@@ -175,44 +144,35 @@
           });
         }
 
-        // MAJ Liste latérale
+        // MAJ Liste
         document.getElementById('lieuxList').innerHTML = filtered.map(l => `
           <div class="lieu-card" onclick="window.selectLieu('${l.id_lieu}')">
             <div style="font-weight:800; color:var(--rouge)">${l.nom_lieu}</div>
             <div style="font-size:0.8rem; color:#666">${l.adresse || ''}</div>
           </div>`).join('');
 
-        // Création des marqueurs et Popups
+        // Marqueurs
         filtered.forEach(l => {
           const lat = parseFloat(l.ycoord), lng = parseFloat(l.xcoord);
           if (isNaN(lat) || isNaN(lng)) return;
 
           let sInfo = "", nearestCoords = null;
-          
           if (stationsGeoJSON?.features.length) {
-            try {
-              const babyPt = turf.point([lng, lat]);
-              const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
-              const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
-              const p = nearest.properties;
-              
-              // Détection du nom de la station (multi-clés)
-              const sName = p.nom || p.libelle || p.nom_gare || p.nom_zda || "Station";
-              nearestCoords = `${nearest.geometry.coordinates[1]},${nearest.geometry.coordinates[0]}`;
-              
-              sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
-                  <strong>Station: ${sName}</strong> (${d}m)
-                </div>`;
-            } catch(e) { console.error("Turf Error:", e); }
+            const babyPt = turf.point([lng, lat]);
+            const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
+            const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
+            const p = nearest.properties;
+            const sName = p.nom || p.libelle || p.nom_gare || "Station";
+            nearestCoords = `${nearest.geometry.coordinates[1]},${nearest.geometry.coordinates[0]}`;
+            sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
+                <strong>Station: ${sName}</strong> (${d}m)
+              </div>`;
           }
 
           const m = L.marker([lat, lng], { icon: window.babyfootIconNormal }).addTo(markerGroup);
           window.markers[l.id_lieu] = m;
 
           const dest = `${lat},${lng}`;
-          const urlGoogleMe = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
-          const urlGoogleStation = nearestCoords ? `https://www.google.com/maps/dir/?api=1&origin=${nearestCoords}&destination=${dest}&travelmode=walking` : null;
-
           m.bindPopup(`
             <div style="min-width:200px">
               <h3 style="color:var(--rouge);margin:0">${l.nom_lieu}</h3>
@@ -220,24 +180,17 @@
               <div style="margin:8px 0; font-size:0.75rem"><strong>${l.prix || 'Gratuit'}</strong> • ${l.nom_modele || 'Standard'}</div>
               ${sInfo}
               <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px">
-                <a href="${urlGoogleMe}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire (Moi)</a>
-                ${urlGoogleStation ? `<a href="${urlGoogleStation}" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis station</a>` : ''}
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${dest}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire (Moi)</a>
+                ${nearestCoords ? `<a href="https://www.google.com/maps/dir/?api=1&origin=${nearestCoords}&destination=${dest}&travelmode=walking" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis station</a>` : ''}
               </div>
             </div>`);
 
-          m.on('click', (e) => { 
-            L.DomEvent.stopPropagation(e); 
-            window.selectLieu(l.id_lieu); 
-          });
+          m.on('click', (e) => { L.DomEvent.stopPropagation(e); window.selectLieu(l.id_lieu); });
         });
-      } catch (e) { console.error("Erreur loadLieux:", e); }
+      } catch (e) { console.error(e); }
     }
 
-    // Gestion Drawer
-    document.getElementById('drawerHandle').onclick = () => {
-      document.getElementById('sidePanel').classList.toggle('expanded');
-    };
-
+    document.getElementById('drawerHandle').onclick = () => document.getElementById('sidePanel').classList.toggle('expanded');
     initLayers();
   })();
 </script>
