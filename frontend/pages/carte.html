@@ -1,8 +1,4 @@
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="pages/carte.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-
 <div class="map-container">
   <aside class="side-panel" id="sidePanel">
     <button class="drawer-handle" id="drawerHandle" aria-label="Déplier la liste">
@@ -19,6 +15,23 @@
 
   <div class="map-wrap">
     <div id="map" aria-label="Carte des babyfoots"></div>
+
+    <div class="legend" id="mapLegend">
+      <strong>Légende</strong>
+      <div class="legend-item">
+        <img src="../icone/loc_point.svg" style="width:18px; height:auto">
+        <span>Babyfoot</span>
+      </div>
+      <div class="legend-item">
+        <div style="width:14px; height:2px; background:#BC1515; border:1px dashed #BC1515"></div>
+        <span>Arrondissement</span>
+      </div>
+      <div class="legend-item">
+        <img src="assets/icones/raiway_station_4329-1655540952.png" style="width:18px; height:18px">
+        <span>Station Ferrée</span>
+      </div>
+    </div>
+
     <div class="controls">
       <div id="selectWrapper" class="ctrl-group"></div>
       <button id="btnAdd" class="ctrl-btn" title="Ajouter un lieu">＋ Ajouter</button>
@@ -27,7 +40,51 @@
 </div>
 
 <div class="logo-bottom-left" aria-hidden="true">
-  <img src="assets/icones/logo_detaille.svg" alt="MyBaby Logo" style="width: 80px; height: auto;">
+  <img src="../icone/logo_detaille.svg" alt="MyBaby Logo" style="width: 80px; height: auto;">
+</div>
+
+<!-- Modal Ajout Babyfoot -->
+<div id="modalAdd" class="modal">
+  <div class="modal-content">
+    <h2 style="color:var(--rouge); margin-top:0">Ajouter un Babyfoot</h2>
+    <form id="formAddBaby" class="form">
+      <label for="fNomLieu">Nom du lieu (50 car.)</label>
+      <input id="fNomLieu" name="nom_lieu" type="text" maxlength="50" required>
+
+      <label for="fAdresse">Localisation (sélectionnée sur la carte)</label>
+      <input id="fAdresse" name="adresse" type="text" readonly required placeholder="Cliquez sur la carte">
+      <input type="hidden" id="fLat" name="ycoord">
+      <input type="hidden" id="fLng" name="xcoord">
+
+      <label for="fModel">Modèle du baby foot</label>
+      <select id="fModel" name="id_modele" required></select>
+
+      <label for="fMarque">Marque du baby foot</label>
+      <input id="fMarque" name="marque" type="text" maxlength="50" required>
+
+      <div style="display:flex; gap:10px">
+        <div style="flex:1">
+          <label>Longueur (cm)</label>
+          <input id="fLong" type="number" step="0.1" required>
+        </div>
+        <div style="flex:1">
+          <label>Largeur (cm)</label>
+          <input id="fLarg" type="number" step="0.1" required>
+        </div>
+      </div>
+
+      <label for="fMatiere">Matière du baby foot</label>
+      <input id="fMatiere" name="matiere" type="text" maxlength="50">
+
+      <label for="fCouleur">Couleur du baby foot</label>
+      <input id="fCouleur" name="couleur" type="text" maxlength="50">
+
+      <div class="actions" style="margin-top:20px">
+        <button type="button" id="btnCancelAdd" class="btn secondary">Annuler</button>
+        <button type="submit" class="btn primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script type="module">
@@ -36,26 +93,58 @@
 
   (async function () {
     'use strict';
-    if (typeof L === 'undefined') return;
+
+    if (typeof L === 'undefined') {
+      document.getElementById('map').innerHTML = '<div style="padding:20px; text-align:center">Erreur: Leaflet n\'est pas chargé.</div>';
+      return;
+    }
 
     const map = L.map('map', { zoomControl: false }).setView([48.8566, 2.3522], 12);
-    window.map = map;
     L.control.zoom({ position: 'bottomright' }).addTo(map);
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { maxZoom: 20 }).addTo(map);
-    
-    window.babyfootIconNormal = L.icon({ iconUrl: 'assets/icones/loc_point.svg', iconSize: [28, 38], iconAnchor: [14, 38], popupAnchor: [0, -38] });
-    window.babyfootIconSelected = L.icon({ iconUrl: 'assets/icones/loc_point_select.svg', iconSize: [36, 48], iconAnchor: [18, 48], popupAnchor: [0, -48] });
-    const stationIcon = L.icon({ iconUrl: 'assets/icones/raiway_station_4329-1655540952.png', iconSize: [12, 12], iconAnchor: [6, 12] });
+    const cartoDB = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20
+    });
 
-    let stationsGeoJSON = null, arrondissementsGeoJSON = null, allLieux = [];
-    const markerGroup = L.layerGroup().addTo(map), stationGroup = L.layerGroup().addTo(map);
-    const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 2, fillOpacity: 0.05, dashArray: '5, 5' } }).addTo(map);
+    const googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '&copy; Google'
+    });
 
-    window.markers = {};
+    // Définir la vue par défaut
+    cartoDB.addTo(map);
+
+    const baseMaps = {
+      'CartoDB (Clair)': cartoDB,
+      'OpenStreetMap': osm,
+      'Google Satellite': googleSat
+    };
+
+    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+    window.babyfootIconNormal = L.icon({
+      iconUrl: '../icone/loc_point.svg',
+      iconSize: [28, 38], iconAnchor: [14, 38], popupAnchor: [0, -38]
+    });
+
+    window.babyfootIconSelected = L.icon({
+      iconUrl: '../icone/Loc_Point selct.svg',
+      iconSize: [36, 48], iconAnchor: [18, 48], popupAnchor: [0, -48]
+    });
+
+    window.currentSelectedLieuId = null;
 
     window.selectLieu = (id) => {
-      if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
+      if (window.currentSelectedLieuId && window.markers[window.currentSelectedLieuId]) {
+        window.markers[window.currentSelectedLieuId].setIcon(window.babyfootIconNormal);
+      }
       if (window.markers[id]) {
         window.markers[id].setIcon(window.babyfootIconSelected);
         window.markers[id].openPopup();
@@ -64,58 +153,76 @@
       }
     };
 
+    const stationIcon = L.icon({
+      iconUrl: 'assets/icones/raiway_station_4329-1655540952.png',
+      iconSize: [12, 12], iconAnchor: [6, 12], popupAnchor: [0, -12]
+    });
+
+    let stationsGeoJSON = null;
+    let arrondissementsGeoJSON = null;
+    let allLieux = [];
+    const markerGroup = L.layerGroup().addTo(map);
+    const stationGroup = L.layerGroup().addTo(map);
+    const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
+
     async function initLayers() {
       try {
         arrondissementsGeoJSON = await mapService.getArrondissements();
-        if (arrondissementsGeoJSON?.features) {
+        if (arrondissementsGeoJSON && arrondissementsGeoJSON.features) {
           ardtLayer.addData(arrondissementsGeoJSON);
-          setupFilters();
+
+          // Arrondissement Filter
+          const selArdt = document.createElement('select');
+          selArdt.id = "filterArdt";
+          selArdt.className = "ctrl-btn";
+          selArdt.innerHTML = '<option value="">Arrondissements</option>' +
+            arrondissementsGeoJSON.features.map(f => {
+              const p = f.properties;
+              const n = p.nom || p.l_ar || p.l_ar_off || p.nom_arnd || "Ardt";
+              const i = (p.c_ar || p.objectid || n).toString();
+              return `<option value="${i}">${n}</option>`;
+            }).sort().join('');
+          document.getElementById('selectWrapper').appendChild(selArdt);
+          selArdt.onchange = () => loadLieux();
+
+          // Price Filter
+          const selPrice = document.createElement('select');
+          selPrice.id = "filterPrice";
+          selPrice.className = "ctrl-btn";
+          selPrice.innerHTML = `
+            <option value="">Prix Max</option>
+            <option value="0.5">0.50 €</option>
+            <option value="1">1.00 €</option>
+            <option value="2">2.00 €</option>
+          `;
+          document.getElementById('selectWrapper').appendChild(selPrice);
+          selPrice.onchange = () => loadLieux();
         }
+
         stationsGeoJSON = await mapService.getStations();
-        if (stationsGeoJSON?.features) {
+        if (stationsGeoJSON && stationsGeoJSON.features) {
+          stationsGeoJSON.features = stationsGeoJSON.features.filter(f => f.geometry && f.geometry.type === 'Point');
           L.geoJSON(stationsGeoJSON, { pointToLayer: (f, l) => L.marker(l, { icon: stationIcon }) }).addTo(stationGroup);
         }
-      } catch (err) { console.error(err); }
+      } catch (err) {
+        console.error("Erreur lors de l'initialisation des couches :", err);
+      }
       loadLieux();
     }
 
-    function setupFilters() {
-      const wrapper = document.getElementById('selectWrapper');
-      wrapper.innerHTML = '';
-
-      const selArdt = document.createElement('select');
-      selArdt.id = "filterArdt";
-      selArdt.className = "ctrl-btn";
-      let opts = '<option value="">Arrondissements</option>';
-      arrondissementsGeoJSON.features.forEach(f => {
-        const p = f.properties;
-        const val = p.c_ar || p.nom || p.objectid;
-        opts += `<option value="${val}">${p.nom || p.l_ar || "Ardt"}</option>`;
-      });
-      selArdt.innerHTML = opts;
-      selArdt.onchange = () => loadLieux();
-
-      const selPrice = document.createElement('select');
-      selPrice.id = "filterPrice";
-      selPrice.className = "ctrl-btn";
-      selPrice.innerHTML = '<option value="">Prix Max</option><option value="0">Gratuit</option><option value<"1">1.00 €</option><option value<"2">2.00 €</option>';
-      selPrice.onchange = () => loadLieux();
-
-      wrapper.append(selArdt, selPrice);
-    }
-
     async function loadLieux() {
+      const listEl = document.getElementById('lieuxList');
+      const labelEl = document.getElementById('activeFilter');
+      const filterArdt = document.getElementById('filterArdt')?.value;
+      const filterPrice = document.getElementById('filterPrice')?.value;
+
       try {
         if (allLieux.length === 0) allLieux = await babyfootService.getAllBabyfoots();
+
         markerGroup.clearLayers();
-        window.markers = {};
-        
-        const filterArdt = document.getElementById('filterArdt')?.value;
-        const filterPrice = document.getElementById('filterPrice')?.value;
-        const labelEl = document.getElementById('activeFilter');
         let filtered = allLieux;
 
-        // --- VOTRE FILTRE ARRONDISSEMENT ---
+        // Apply Ardt Filter
         if (filterArdt && arrondissementsGeoJSON) {
           const ar = arrondissementsGeoJSON.features.find(f => {
             const p = f.properties;
@@ -133,64 +240,180 @@
           }
         } else { labelEl.textContent = "Tous les arrondissements"; }
 
-        // --- FILTRE PRIX ---
-        if (filterPrice !== "" && filterPrice !== undefined) {
+        // Apply Price Filter
+        if (filterPrice) {
           const maxP = parseFloat(filterPrice);
           filtered = filtered.filter(l => {
-            const pStr = l.prix?.toString().toLowerCase() || "";
-            if (pStr.includes("gratuit") || pStr === "0") return 0 <= maxP;
-            const pVal = parseFloat(pStr.replace(/[^\d.]/g, ''));
+            if (!l.prix || l.prix.toLowerCase().includes('gratuit')) return 0 <= maxP;
+            const pVal = parseFloat(l.prix.replace(/[^\d.]/g, ''));
             return !isNaN(pVal) && pVal <= maxP;
           });
         }
 
-        // MAJ Liste
-        document.getElementById('lieuxList').innerHTML = filtered.map(l => `
+        listEl.innerHTML = filtered.length ? filtered.map(l => {
+          const p = l.prix || '';
+          const displayPrice = (p.includes('€') || p.toLowerCase().includes('gratuit') || p === '') ? (p || 'Gratuit') : p + ' €';
+          return `
           <div class="lieu-card" onclick="window.selectLieu('${l.id_lieu}')">
             <div style="font-weight:800; color:var(--rouge)">${l.nom_lieu}</div>
             <div style="font-size:0.8rem; color:#666">${l.adresse || ''}</div>
-          </div>`).join('');
+            <div style="font-size:0.75rem; font-weight:700; margin-top:4px">${displayPrice} • ${l.nom_modele || 'Modèle inconnu'}</div>
+          </div>`;
+        }).join('') : '<div class="empty-msg">Aucun lieu trouvé.</div>';
 
-        // Marqueurs
+        window.markers = {};
         filtered.forEach(l => {
           const lat = parseFloat(l.ycoord), lng = parseFloat(l.xcoord);
           if (isNaN(lat) || isNaN(lng)) return;
 
-          let sInfo = "", nearestCoords = null;
-          if (stationsGeoJSON?.features.length) {
-            const babyPt = turf.point([lng, lat]);
-            const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
-            const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
-            const p = nearest.properties;
-            const sName = p.nom || p.libelle || p.nom_gare || "Station";
-            nearestCoords = `${nearest.geometry.coordinates[1]},${nearest.geometry.coordinates[0]}`;
-            sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
-                <strong>Station: ${sName}</strong> (${d}m)
-              </div>`;
-          }
+          let sInfo = "";
+          if (stationsGeoJSON && stationsGeoJSON.features.length) {
+            try {
+              const babyPt = turf.point([lng, lat]);
+              const nearest = turf.nearestPoint(babyPt, stationsGeoJSON);
+              if (nearest) {
+                const p = nearest.properties;
+                const d = turf.distance(babyPt, nearest, { units: 'meters' }).toFixed(0);
 
+                let sName = "Inconnue";
+                const nameKeys = ['nom_zda', 'nom_ptes', 'nom_gares', 'libelle', 'label', 'nom', 'text'];
+                for (let key of nameKeys) {
+                  const val = p[key];
+                  if (val) { sName = val; break; }
+                }
+
+                const sLines = p.res_com || p.lignes || "N/A";
+                const sLat = nearest.geometry.coordinates[1];
+                const sLng = nearest.geometry.coordinates[0];
+                const walkDirUrl = `https://www.google.com/maps/dir/?api=1&origin=${sLat},${sLng}&destination=${lat},${lng}&travelmode=walking`;
+
+                sInfo = `<div style="margin-top:8px; padding:8px; background:#f0f7ff; border-radius:8px; border-left:4px solid #3388ff; font-size:0.8rem">
+                    <strong>Station: ${sName}</strong><br>
+                    Lignes: ${sLines} (${d}m)<br>
+                    <a href="${walkDirUrl}" target="_blank" style="display:inline-block; margin-top:6px; background:#3388ff; color:white; text-decoration:none; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:0.75rem;">🚶 À pied depuis la station</a>
+                  </div>`;
+              }
+            } catch (e) { }
+          }
           const m = L.marker([lat, lng], { icon: window.babyfootIconNormal }).addTo(markerGroup);
           window.markers[l.id_lieu] = m;
 
-          const dest = `${lat},${lng}`;
-          m.bindPopup(`
-            <div style="min-width:200px">
-              <h3 style="color:var(--rouge);margin:0">${l.nom_lieu}</h3>
-              <p style="font-size:0.85rem">${l.adresse || ''}</p>
-              <div style="margin:8px 0; font-size:0.75rem"><strong>${l.prix || 'Gratuit'}</strong> • ${l.nom_modele || 'Standard'}</div>
-              ${sInfo}
-              <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px">
-                <a href="https://www.google.com/maps/dir/?api=1&destination=${dest}" target="_blank" style="text-decoration:none; background:#4285F4; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚗 Itinéraire (Moi)</a>
-                ${nearestCoords ? `<a href="https://www.google.com/maps/dir/?api=1&origin=${nearestCoords}&destination=${dest}&travelmode=walking" target="_blank" style="text-decoration:none; background:#34A853; color:white; padding:8px; border-radius:4px; text-align:center; font-size:0.75rem; font-weight:bold">🚶 Depuis station</a>` : ''}
+          const p = l.prix || '';
+          const displayPrice = (p.includes('€') || p.toLowerCase().includes('gratuit') || p === '') ? (p || 'Gratuit') : p + ' €';
+          const transitDirUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=transit`;
+          const popupContent = `
+            <div style="min-width:180px">
+              <h3 style="color:var(--rouge);margin:0 0 4px 0">${l.nom_lieu}</h3>
+              <p style="font-size:0.85rem;margin:0;color:#555">${l.adresse || ''}</p>
+              <div style="margin-top:8px; display:flex; gap:8px; font-size:0.8rem">
+                <span style="background:var(--rouge); color:#fff; padding:2px 6px; border-radius:4px; font-weight:700">${displayPrice}</span>
+                <span style="background:#eee; padding:2px 6px; border-radius:4px">${l.nom_modele || 'Modèle classique'}</span>
               </div>
-            </div>`);
+              ${sInfo}
+              <a href="${transitDirUrl}" target="_blank" style="display:block; margin-top:10px; padding:8px; background:var(--rouge); color:white; text-align:center; border-radius:6px; text-decoration:none; font-size:0.85rem; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🚇 Y aller en transports</a>
+            </div>
+          `;
 
-          m.on('click', (e) => { L.DomEvent.stopPropagation(e); window.selectLieu(l.id_lieu); });
+          m.bindPopup(popupContent);
+
+          m.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
+            window.selectLieu(l.id_lieu);
+          });
         });
       } catch (e) { console.error(e); }
     }
 
-    document.getElementById('drawerHandle').onclick = () => document.getElementById('sidePanel').classList.toggle('expanded');
+    const modalAdd = document.getElementById('modalAdd');
+    const formAdd = document.getElementById('formAddBaby');
+    const btnCancelAdd = document.getElementById('btnCancelAdd');
+    const selectModel = document.getElementById('fModel');
+
+    async function initAddForm() {
+      try {
+        const models = await babyfootService.getModels();
+        selectModel.innerHTML = models.map(m => `<option value="${m.id_modele}" data-marque="${m.marque || ''}" data-matiere="${m.matière || ''}" data-couleur="${m.couleur || ''}" data-taille="${m.taille || ''}">${m.nom_modele}</option>`).join('');
+
+        selectModel.onchange = () => {
+          const opt = selectModel.selectedOptions[0];
+          document.getElementById('fMarque').value = opt.dataset.marque;
+          document.getElementById('fMatiere').value = opt.dataset.matiere;
+          document.getElementById('fCouleur').value = opt.dataset.couleur;
+          const [l, w] = (opt.dataset.taille || "0/0").split('/');
+          document.getElementById('fLong').value = l || "";
+          document.getElementById('fLarg').value = w || "";
+        };
+        if (selectModel.onchange) selectModel.onchange();
+      } catch (e) { console.error("Error loading models:", e); }
+    }
+
+    document.getElementById('btnAdd').onclick = async () => {
+      const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
+      if (!user.id_utilisateur && !user.id) {
+        alert("Veuillez vous connecter pour ajouter un lieu.");
+        window.location.hash = '#login';
+        return;
+      }
+
+      await initAddForm();
+      alert("Cliquez sur l'emplacement précis du babyfoot sur la carte...");
+
+      map.once('click', async e => {
+        const { lat, lng } = e.latlng;
+        document.getElementById('fLat').value = lat;
+        document.getElementById('fLng').value = lng;
+
+        try {
+          const revRes = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${lng}&lat=${lat}`);
+          const revData = await revRes.json();
+          if (revData.features && revData.features.length > 0) {
+            document.getElementById('fAdresse').value = revData.features[0].properties.label;
+          }
+        } catch (err) { }
+
+        modalAdd.classList.add('show');
+      });
+    };
+
+    btnCancelAdd.onclick = () => modalAdd.classList.remove('show');
+
+    formAdd.onsubmit = async (e) => {
+      e.preventDefault();
+      const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
+
+      try {
+        const payload = {
+          nom_lieu: formAdd.nom_lieu.value,
+          adresse: formAdd.adresse.value,
+          ville: "Paris",
+          id_modele: formAdd.id_modele.value,
+          id_utilisateur: user.id_utilisateur || user.id,
+          xcoord: parseFloat(formAdd.xcoord.value),
+          ycoord: parseFloat(formAdd.ycoord.value),
+          taille: `${formAdd.fLong.value}/${formAdd.fLarg.value}`,
+          marque: formAdd.marque.value,
+          matiere: formAdd.matiere.value,
+          couleur: formAdd.couleur.value
+        };
+
+        await babyfootService.createBabyfoot(payload);
+        alert("Lieu ajouté avec succès !");
+        modalAdd.classList.remove('show');
+        allLieux = [];
+        loadLieux();
+      } catch (err) {
+        alert("Erreur lors de l'ajout : " + err.message);
+      }
+    };
+
+    const sidePanel = document.getElementById('sidePanel');
+    const drawerHandle = document.getElementById('drawerHandle');
+    if (drawerHandle && sidePanel) {
+      drawerHandle.addEventListener('click', () => {
+        sidePanel.classList.toggle('expanded');
+      });
+    }
+
     initLayers();
   })();
 </script>
