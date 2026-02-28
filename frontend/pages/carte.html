@@ -47,25 +47,36 @@
 <div id="modalAdd" class="modal">
   <div class="modal-content">
     <h2 style="color:var(--rouge); margin-top:0">Ajouter un Babyfoot</h2>
-    <form id="formAddBaby" class="form">
-      <label for="fNomLieu">Nom du lieu (50 car.)</label>
-      <input id="fNomLieu" name="nom_lieu" type="text" maxlength="50" required>
+    
+    <form id="formAddBaby" class="form" style="display:flex; flex-direction:column; gap:15px;">
+      
+      <div>
+        <label for="fNomLieu" style="display:block; margin-bottom:5px; font-weight:bold;">Nom du lieu (50 car.)</label>
+        <input id="fNomLieu" name="nom_lieu" type="text" maxlength="50" required style="width:100%;">
+      </div>
 
-      <label for="fAdresse">Localisation (sélectionnée sur la carte)</label>
-      <input id="fAdresse" name="adresse" type="text" readonly required placeholder="Cliquez sur la carte">
-      <input type="hidden" id="fLat" name="ycoord">
-      <input type="hidden" id="fLng" name="xcoord">
+      <div>
+        <label for="fAdresse" style="display:block; margin-bottom:5px; font-weight:bold;">Localisation</label>
+        <input id="fAdresse" name="adresse" type="text" readonly required placeholder="Cliquez sur la carte" style="width:100%;">
+        <input type="hidden" id="fLat" name="ycoord">
+        <input type="hidden" id="fLng" name="xcoord">
+      </div>
 
-      <label for="fModel">Modèle du baby foot</label>
-      <select id="fModel" name="id_modele" required></select>
+      <div>
+        <label for="fModel" style="display:block; margin-bottom:5px; font-weight:bold;">Modèle du baby foot</label>
+        <select id="fModel" name="id_modele" required style="width:100%;"></select>
+      </div>
 
-      <label for="fMarque">Marque du baby foot</label>
-      <input id="fMarque" name="marque" type="text" maxlength="50" required>
+      <div>
+        <label for="fMarque" style="display:block; margin-bottom:5px; font-weight:bold;">Marque du baby foot</label>
+        <input id="fMarque" name="marque" type="text" maxlength="50" required style="width:100%;">
+      </div>
 
-      <div class="actions" style="margin-top:20px">
+      <div class="actions" style="margin-top:10px; display:flex; gap:10px; justify-content:flex-end;">
         <button type="button" id="btnCancelAdd" class="btn secondary">Annuler</button>
         <button type="submit" class="btn primary">Enregistrer</button>
       </div>
+      
     </form>
   </div>
 </div>
@@ -293,9 +304,6 @@
                 <span>Prix : <strong style="color:#666;">${displayPrice}</strong></span>
                 <span>Modèle : <strong>${l.nom_modele || 'Classique'}</strong></span>
               </div>
-            
-              ${sInfo}
-            
               <a href="${transitDirUrl}" target="_blank" style="display:block; margin-top:12px; padding:10px; background:var(--rouge); color:white; text-align:center; border-radius:6px; text-decoration:none; font-size:0.9rem; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 Itinéraires depuis ma position
               </a>
