@@ -4,17 +4,12 @@
     <button class="drawer-handle" id="drawerHandle" aria-label="Déplier la liste">
       <span></span>
     </button>
-    <div class="sidebar-container" style="display: flex; flex-direction: column; height: 100vh;">
-      
-      <div class="side-header">
-        <h2 style="margin:0; font-weight:800; color:var(--rouge)">Baby Foot à proximité</h2>
-        <div id="activeFilter" style="font-size:0.8rem; color:#666; margin-top:4px">Tous les arrondissements</div>
-      </div>
-    
-      <div id="lieuxList" class="lieux-list" style="flex: 1; overflow-y: auto;">
-        <div class="loader-sm">Chargement...</div>
-      </div>
-      
+<div class="side-header">
+      <h2 style="margin:0; font-weight:800; color:var(--rouge)">Baby Foot à proximité</h2>
+      <div id="activeFilter" style="font-size:0.8rem; color:#666; margin-top:4px">Tous les arrondissements
+    </div>
+    <div id="lieuxList" class="lieux-list" style="max-height: 70vh; overflow-y: auto;">
+      <div class="loader-sm">Chargement...</div>
     </div>
   </aside>
 
