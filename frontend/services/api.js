@@ -1,5 +1,6 @@
 // Utiliser toujours Railway (même en local)
-const API_URL = 'https://app-production-db84.up.railway.app/api';
+export const BASE_URL = 'https://app-production-db84.up.railway.app';
+const API_URL = `${BASE_URL}/api`;
 
 // Si vous voulez tester avec le backend local, décommentez les lignes ci-dessous :
 // const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
