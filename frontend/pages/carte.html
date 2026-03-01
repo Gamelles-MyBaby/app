@@ -80,6 +80,23 @@
         <input id="fMarque" name="marque" type="text" maxlength="50" required style="width:100%;">
       </div>
 
+      <div>
+        <label for="fPrix" style="display:block; margin-bottom:5px; font-weight:bold;">Prix de la partie</label>
+        <select id="fPrix" name="prix_select" required style="width:100%;">
+          <option value="Gratuit">Gratuit</option>
+          <option value="0.50 €">0.50 €</option>
+          <option value="1.00 €">1.00 €</option>
+          <option value="2.00 €">2.00 €</option>
+          <option value="Autre">Autre...</option>
+        </select>
+      </div>
+
+      <div id="divPrixCustom" style="display:none;">
+        <label for="fPrixCustom" style="display:block; margin-bottom:5px; font-weight:bold;">Saisir le prix (ex: 1.50
+          €)</label>
+        <input id="fPrixCustom" name="prix_custom" type="text" style="width:100%;" placeholder="1.50 €">
+      </div>
+
       <div class="actions" style="margin-top:10px; display:flex; gap:10px; justify-content:flex-end;">
         <button type="button" id="btnCancelAdd" class="btn secondary">Annuler</button>
         <button type="submit" class="btn primary">Enregistrer</button>
@@ -364,6 +381,21 @@
       } catch (e) { console.error("Error loading models:", e); }
     }
 
+    const selectPrix = document.getElementById('fPrix');
+    const divPrixCustom = document.getElementById('divPrixCustom');
+    const inputPrixCustom = document.getElementById('fPrixCustom');
+
+    selectPrix.onchange = () => {
+      if (selectPrix.value === 'Autre') {
+        divPrixCustom.style.display = 'block';
+        inputPrixCustom.required = true;
+      } else {
+        divPrixCustom.style.display = 'none';
+        inputPrixCustom.required = false;
+        inputPrixCustom.value = '';
+      }
+    };
+
     document.getElementById('btnAdd').onclick = async () => {
       const user = JSON.parse(localStorage.getItem('mybaby_user') || '{}');
       if (!user.id_utilisateur && !user.id) {
@@ -410,7 +442,8 @@
           taille: `${formAdd.fLong.value}/${formAdd.fLarg.value}`,
           marque: formAdd.marque.value,
           matiere: formAdd.matiere.value,
-          couleur: formAdd.couleur.value
+          couleur: formAdd.couleur.value,
+          prix: formAdd.prix_select.value === 'Autre' ? formAdd.prix_custom.value : formAdd.prix_select.value
         };
 
         await babyfootService.createBabyfoot(payload);
