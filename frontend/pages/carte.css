@@ -230,7 +230,8 @@
     width: 100%;
     height: 60px;
     position: absolute;
-    bottom: 0;
+    bottom: 74px;
+    /* Hauteur logo (64) + marge (10) pour s'arrêter juste au dessus */
     left: 0;
     right: 0;
     border-right: none;
@@ -269,7 +270,8 @@
   }
 
   .legend {
-    bottom: 80px !important;
+    bottom: 140px !important;
+    /* Remonté pour éviter le tiroir et le logo */
     right: 15px !important;
     padding: 12px;
   }
