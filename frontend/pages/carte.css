@@ -239,8 +239,8 @@
     border-top: 1px solid #ddd;
     transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: #fff;
-    z-index: 1001;
-    /* Doit être au-dessus des contrôles Leaflet (1000) */
+    z-index: 2000;
+    /* Passe au-dessus des contrôles Leaflet (1000) */
   }
 
   .side-panel.expanded {
