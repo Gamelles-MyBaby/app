@@ -224,7 +224,9 @@
 
 @media (max-width: 768px) {
   .map-container {
-    flex-direction: column-reverse;
+    display: block;
+    /* Supprime le stacking flex pour permettre la superposition totale */
+    position: relative;
   }
 
   .side-panel {
@@ -256,11 +258,21 @@
     padding: 15px 20px;
   }
 
+  .map-wrap {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
   .lieux-list {
     padding-bottom: 20px;
     min-height: 0;
     flex: 1;
     overflow-y: auto !important;
+    background: #fff;
+    /* Fond blanc opaque pour cacher la carte dessous */
     -webkit-overflow-scrolling: touch;
   }
 
