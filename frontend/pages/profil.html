@@ -5,90 +5,90 @@
     <!-- Sidebar: Basic Info -->
     <aside class="profile-sidebar">
       <div class="card glass-card">
-          <div class="avatar-wrapper">
-            <img id="display-avatar" src="https://ui-avatars.com/api/?name=User&background=random&color=fff&size=128"
-              alt="Avatar">
-            <label for="avatar-input" class="avatar-edit-badge">
-              <span class="edit-icon">✏️</span>
-            </label>
-            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
-          </div>
-          <div id="display-pseudo" class="pseudo">Chargement...</div>
-          <div id="display-role" class="role-tag">Joueur</div>
+        <div class="avatar-wrapper">
+          <img id="display-avatar" src="https://ui-avatars.com/api/?name=User&background=random&color=fff&size=128"
+            alt="Avatar">
+          <label for="avatar-input" class="avatar-edit-badge">
+            <span class="edit-icon">✏️</span>
+          </label>
+          <input type="file" id="avatar-input" accept="image/*" style="display: none;">
         </div>
+        <div id="display-pseudo" class="pseudo">Chargement...</div>
+        <div id="display-role" class="role-tag">Joueur</div>
+      </div>
 
-        <div class="stats-overview">
-          <div class="stat-pill">
-            <span class="stat-val" id="stat-elo">...</span>
-            <span class="stat-lbl">Points ELO</span>
-          </div>
-        </div>
-
-        <div class="menu-list">
-          <button class="menu-item active">👤 Informations</button>
-          <button id="btnSettings" class="menu-item">⚙️ Paramètres</button>
-          <button id="btnLogout" class="menu-item logout">🚪 Déconnexion</button>
+      <div class="stats-overview">
+        <div class="stat-pill">
+          <span class="stat-val" id="stat-elo">...</span>
+          <span class="stat-lbl">Points ELO</span>
         </div>
       </div>
-    </aside>
 
-    <!-- Main Content: Details & Babyfoots -->
-    <main class="profile-main">
-      <section class="card">
-        <h2 style="margin-top:0">Détails du compte</h2>
-        <div class="info-grid">
-          <div class="info-box">
-            <label>Adresse Email</label>
-            <div id="display-email">...</div>
-          </div>
-          <div class="info-box">
-            <label>Date d'inscription</label>
-            <div id="display-date">...</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card" style="margin-top:24px">
-        <h2 style="margin-top:0">Statistiques de Jeu</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <label>Matchs Joués</label>
-            <div id="stat-parties">0</div>
-          </div>
-          <div class="stat-card win">
-            <label>Victoires</label>
-            <div id="stat-victoires">0</div>
-          </div>
-          <div class="stat-card loss">
-            <label>Défaites</label>
-            <div id="stat-defaites">0</div>
-          </div>
-          <div class="stat-card">
-            <label>ELO Min / Max</label>
-            <div id="stat-elo-range">1500 / 1500</div>
-          </div>
-          <div class="stat-card streak">
-            <label>Série Actuelle</label>
-            <div id="stat-streak-now">0</div>
-          </div>
-          <div class="stat-card streak-max">
-            <label>Série Max</label>
-            <div id="stat-streak-max">0</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card" style="margin-top:24px">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
-          <h2 style="margin:0">Mes Babyfoots</h2>
-          <button id="btnAddBabyfoot" class="btn primary">＋ Ajouter</button>
-        </div>
-        <div id="babyfoot-list" class="bars-list">
-          <div class="loader-sm">Récupération...</div>
-        </div>
-      </section>
-    </main>
+      <div class="menu-list">
+        <button class="menu-item active">👤 Informations</button>
+        <button id="btnSettings" class="menu-item">⚙️ Paramètres</button>
+        <button id="btnLogout" class="menu-item logout">🚪 Déconnexion</button>
+      </div>
   </div>
+  </aside>
+
+  <!-- Main Content: Details & Babyfoots -->
+  <main class="profile-main">
+    <section class="card">
+      <h2 style="margin-top:0">Détails du compte</h2>
+      <div class="info-grid">
+        <div class="info-box">
+          <label>Adresse Email</label>
+          <div id="display-email">...</div>
+        </div>
+        <div class="info-box">
+          <label>Date d'inscription</label>
+          <div id="display-date">...</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:24px">
+      <h2 style="margin-top:0">Statistiques de Jeu</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <label>Matchs Joués</label>
+          <div id="stat-parties">0</div>
+        </div>
+        <div class="stat-card win">
+          <label>Victoires</label>
+          <div id="stat-victoires">0</div>
+        </div>
+        <div class="stat-card loss">
+          <label>Défaites</label>
+          <div id="stat-defaites">0</div>
+        </div>
+        <div class="stat-card">
+          <label>ELO Min / Max</label>
+          <div id="stat-elo-range">1500 / 1500</div>
+        </div>
+        <div class="stat-card streak">
+          <label>Série Actuelle</label>
+          <div id="stat-streak-now">0</div>
+        </div>
+        <div class="stat-card streak-max">
+          <label>Série Max</label>
+          <div id="stat-streak-max">0</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:24px">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+        <h2 style="margin:0">Mes Babyfoots</h2>
+        <button id="btnAddBabyfoot" class="btn primary">＋ Ajouter</button>
+      </div>
+      <div id="babyfoot-list" class="bars-list">
+        <div class="loader-sm">Récupération...</div>
+      </div>
+    </section>
+  </main>
+</div>
 </div>
 
 <style>
@@ -137,7 +137,7 @@
     justify-content: center;
     cursor: pointer;
     border: 2px solid white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s;
   }
 
@@ -323,6 +323,7 @@
 <script type="module">
   import { userService } from './services/userService.js';
   import { babyfootService } from './services/babyfootService.js';
+  import { BASE_URL } from './services/api.js';
 
   (async function () {
     'use strict';
@@ -342,9 +343,14 @@
         document.getElementById('display-pseudo').textContent = profile.pseudo;
         document.getElementById('display-email').textContent = profile.email || 'Non renseigné';
         document.getElementById('display-date').textContent = profile.date_inscription ? new Date(profile.date_inscription).toLocaleDateString() : 'Inconnue';
-        document.getElementById('stat-elo').textContent = profile.elo_score || 1500;
+        document.getElementById('display-elo').textContent = profile.elo_score || 1500;
         document.getElementById('display-role').textContent = "Compte " + (profile.role || 'joueur');
-        document.getElementById('display-avatar').src = profile.photo_profil || `https://ui-avatars.com/api/?name=${profile.pseudo}&background=random&color=fff&size=128`;
+
+        let avatarUrl = profile.photo_profil;
+        if (avatarUrl && avatarUrl.startsWith('/uploads')) {
+          avatarUrl = BASE_URL + avatarUrl;
+        }
+        document.getElementById('display-avatar').src = avatarUrl || `https://ui-avatars.com/api/?name=${profile.pseudo}&background=random&color=fff&size=128`;
 
         // Extended Stats
         document.getElementById('stat-parties').textContent = profile.nombre_parties || 0;
@@ -388,15 +394,15 @@
 
         const result = await userService.uploadAvatar(uid, file);
         alert("Photo de profil mise à jour !");
-        
+
         // Update local cache if needed (mybaby_user)
         const updatedUser = JSON.parse(localStorage.getItem('mybaby_user'));
         updatedUser.photo_profil = result.photo_profil;
         localStorage.setItem('mybaby_user', JSON.stringify(updatedUser));
-        
+
         // Refresh display with server path
-        displayAvatar.src = result.photo_profil;
-        
+        displayAvatar.src = result.photo_profil.startsWith('/uploads') ? BASE_URL + result.photo_profil : result.photo_profil;
+
       } catch (err) {
         alert("Erreur lors de l'upload: " + err.message);
         // Reset to old avatar
