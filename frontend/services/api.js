@@ -23,14 +23,15 @@ class Api {
 
     async post(endpoint, data) {
         try {
+            const isFormData = data instanceof FormData;
             const response = await fetch(`${API_URL}${endpoint}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+                body: isFormData ? data : JSON.stringify(data)
             });
             if (!response.ok) {
                 const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.message || `Erreur HTTP: ${response.status}`);
+                throw new Error(errData.message || errData.error || `Erreur HTTP: ${response.status}`);
             }
             return await response.json();
         } catch (error) {
