@@ -349,8 +349,10 @@
         let avatarUrl = profile.photo_profil;
         if (avatarUrl && avatarUrl.startsWith('/uploads')) {
           avatarUrl = BASE_URL + avatarUrl;
+        } else if (!avatarUrl) {
+          avatarUrl = `https://ui-avatars.com/api/?name=${profile.pseudo}&background=random&color=fff&size=128`;
         }
-        document.getElementById('display-avatar').src = avatarUrl || `https://ui-avatars.com/api/?name=${profile.pseudo}&background=random&color=fff&size=128`;
+        document.getElementById('display-avatar').src = avatarUrl;
 
         // Extended Stats
         document.getElementById('stat-parties').textContent = profile.nombre_parties || 0;
@@ -400,8 +402,9 @@
         updatedUser.photo_profil = result.photo_profil;
         localStorage.setItem('mybaby_user', JSON.stringify(updatedUser));
 
-        // Refresh display with server path
-        displayAvatar.src = result.photo_profil.startsWith('/uploads') ? BASE_URL + result.photo_profil : result.photo_profil;
+        // Refresh display
+        const avatarPath = result.photo_profil;
+        displayAvatar.src = (avatarPath && avatarPath.startsWith('/uploads')) ? BASE_URL + avatarPath : avatarPath;
 
       } catch (err) {
         alert("Erreur lors de l'upload: " + err.message);
