@@ -5,14 +5,17 @@
   min-height: 500px;
   overflow: hidden;
   background: #f8f8f8;
+  position: relative;
+  /* Parent de positionnement pour side-panel sur mobile */
 }
 
 /* CORRECTIF SÉCURITÉ : Annule le fond gris imposé aux images sur toute la page */
 /* On cible spécifiquement les icônes de la carte et de la légende */
-.leaflet-marker-icon, 
+.leaflet-marker-icon,
 .legend-item img {
   background: transparent !important;
-  background-color: transparent !important; /* Force l'annulation du #eee */
+  background-color: transparent !important;
+  /* Force l'annulation du #eee */
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
@@ -48,6 +51,8 @@
   margin-bottom: 12px;
   cursor: pointer;
   transition: all 0.2s;
+  background: #fff;
+  /* Évite la transparence */
 }
 
 .lieu-card:hover {
@@ -231,7 +236,8 @@
     border-top: 1px solid #ddd;
     transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: #fff;
-    z-index: 1001;
+    z-index: 1100;
+    /* Supérieur au footer si présent, et aux contrôles de carte */
   }
 
   .side-panel.expanded {
