@@ -167,6 +167,18 @@
     const stationGroup = L.layerGroup().addTo(map);
     const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
 
+    // Toggle station visibility based on zoom
+    function updateStationVisibility() {
+      const zoom = map.getZoom();
+      if (zoom < 13) {
+        if (map.hasLayer(stationGroup)) map.removeLayer(stationGroup);
+      } else {
+        if (!map.hasLayer(stationGroup)) map.addLayer(stationGroup);
+      }
+    }
+
+    map.on('zoomend', updateStationVisibility);
+
     async function initLayers() {
       try {
         arrondissementsGeoJSON = await mapService.getArrondissements();
@@ -428,5 +440,6 @@
     }
 
     initLayers();
+    updateStationVisibility(); // Initial check
   })();
 </script>
