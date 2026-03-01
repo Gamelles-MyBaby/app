@@ -114,6 +114,26 @@
     color: #fff;
   }
 
+  .player-item.highlight {
+    background: #fff5f5;
+    border-left: 4px solid var(--rouge);
+    animation: flash 1s ease-in-out;
+  }
+
+  @keyframes flash {
+    0% {
+      background: #fff5f5;
+    }
+
+    50% {
+      background: #ffebeb;
+    }
+
+    100% {
+      background: #fff5f5;
+    }
+  }
+
   .empty-state {
     padding: 40px;
     text-align: center;
@@ -133,6 +153,7 @@
     const userModal = document.getElementById('userModal');
     const userDetails = document.getElementById('userDetails');
     const closeUserModal = document.getElementById('closeUserModal');
+    const btnMyRank = document.getElementById('btnMyRank');
 
     let allUsers = [];
     let currentCat = 'intermediaire';
@@ -242,6 +263,44 @@
         render();
       };
     });
+
+    btnMyRank.onclick = () => {
+      const userStr = localStorage.getItem('mybaby_user');
+      if (!userStr) {
+        alert("Connectez-vous pour voir votre rang !");
+        return;
+      }
+      const me = JSON.parse(userStr);
+      const myId = me.id_utilisateur || me.id;
+
+      const myUserObj = allUsers.find(u => (u.id_utilisateur || u.id) === myId);
+      if (!myUserObj) {
+        alert("Utilisateur non trouvé dans le classement.");
+        return;
+      }
+
+      const targetCat = getCategory(myUserObj.elo_score);
+
+      // Clear search
+      searchBox.value = '';
+
+      if (currentCat !== targetCat) {
+        const catBtn = document.querySelector(`[data-cat="${targetCat}"]`);
+        if (catBtn) catBtn.click();
+      } else {
+        render();
+      }
+
+      // Scroll to user
+      setTimeout(() => {
+        const item = listEl.querySelector(`.player-item[data-id="${myId}"]`);
+        if (item) {
+          item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          item.classList.add('highlight');
+          setTimeout(() => item.classList.remove('highlight'), 3000);
+        }
+      }, 100);
+    };
 
     // Initial Fetch
     await fetchData();
