@@ -164,6 +164,16 @@ class UserService {
 
         return await userModel.updateStats(userId, stats);
     }
+
+    /**
+     * Met à jour la photo de profil d'un utilisateur
+     */
+    async updateProfilePicture(userId, photoPath) {
+        const stats = {
+            photo_profil: photoPath
+        };
+        return await userModel.updateStats(userId, stats);
+    }
 }
 
 module.exports = new UserService();
