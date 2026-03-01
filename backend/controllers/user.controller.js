@@ -45,7 +45,7 @@ exports.uploadAvatar = async (req, res) => {
         }
 
         const userId = req.params.id;
-        const photoPath = `/uploads/avatars/${req.file.filename}`;
+        const photoPath = req.file.path; // URL Cloudinary (https://res.cloudinary.com/...)
 
         const updatedUser = await userService.updateProfilePicture(userId, photoPath);
         res.json({
