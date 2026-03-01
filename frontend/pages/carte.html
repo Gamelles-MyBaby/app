@@ -4,13 +4,13 @@
     <button class="drawer-handle" id="drawerHandle" aria-label="Déplier la liste">
       <span></span>
     </button>
-<div class="side-header">
+    <div class="side-header">
       <h2 style="margin:0; font-weight:800; color:var(--rouge)">Baby Foot à proximité</h2>
       <div id="activeFilter" style="font-size:0.8rem; color:#666; margin-top:4px">Tous les arrondissements
-    </div>
-    <div id="lieuxList" class="lieux-list" style="max-height: 70vh; overflow-y: auto;">
-      <div class="loader-sm">Chargement...</div>
-    </div>
+      </div>
+      <div id="lieuxList" class="lieux-list" style="max-height: 70vh; overflow-y: auto;">
+        <div class="loader-sm">Chargement...</div>
+      </div>
   </aside>
 
   <div class="map-wrap">
@@ -47,9 +47,9 @@
 <div id="modalAdd" class="modal">
   <div class="modal-content">
     <h2 style="color:var(--rouge); margin-top:0">Ajouter un Babyfoot</h2>
-    
+
     <form id="formAddBaby" class="form" style="display:flex; flex-direction:column; gap:15px;">
-      
+
       <div>
         <label for="fNomLieu" style="display:block; margin-bottom:5px; font-weight:bold;">Nom du lieu (50 car.)</label>
         <input id="fNomLieu" name="nom_lieu" type="text" maxlength="50" required style="width:100%;">
@@ -57,7 +57,8 @@
 
       <div>
         <label for="fAdresse" style="display:block; margin-bottom:5px; font-weight:bold;">Localisation</label>
-        <input id="fAdresse" name="adresse" type="text" readonly required placeholder="Cliquez sur la carte" style="width:100%;">
+        <input id="fAdresse" name="adresse" type="text" readonly required placeholder="Cliquez sur la carte"
+          style="width:100%;">
         <input type="hidden" id="fLat" name="ycoord">
         <input type="hidden" id="fLng" name="xcoord">
       </div>
@@ -76,7 +77,7 @@
         <button type="button" id="btnCancelAdd" class="btn secondary">Annuler</button>
         <button type="submit" class="btn primary">Enregistrer</button>
       </div>
-      
+
     </form>
   </div>
 </div>
@@ -155,7 +156,7 @@
     let stationsGeoJSON = null;
     let arrondissementsGeoJSON = null;
     let allLieux = [];
-    const markerGroup = L.layerGroup().addTo(map);
+    const markerGroup = L.markerClusterGroup().addTo(map);
     const stationGroup = L.layerGroup().addTo(map);
     const ardtLayer = L.geoJSON(null, { style: { color: '#BC1515', weight: 4, fillOpacity: 0.1, dashArray: '5, 5' } }).addTo(map);
 
@@ -289,7 +290,8 @@
               }
             } catch (e) { }
           }
-          const m = L.marker([lat, lng], { icon: window.babyfootIconNormal }).addTo(markerGroup);
+          const m = L.marker([lat, lng], { icon: window.babyfootIconNormal });
+          markerGroup.addLayer(m);
           window.markers[l.id_lieu] = m;
 
           const p = l.prix || '';
