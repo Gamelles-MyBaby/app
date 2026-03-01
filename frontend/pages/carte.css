@@ -243,7 +243,7 @@
   }
 
   .side-panel.expanded {
-    height: 45vh;
+    height: 50vh;
   }
 
   .drawer-handle {
@@ -256,6 +256,8 @@
 
   .lieux-list {
     padding-bottom: 20px;
+    min-height: 0;
+    /* Important pour permettre le scroll dans un parent flex */
   }
 
   .controls {
