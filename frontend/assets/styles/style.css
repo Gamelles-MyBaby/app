@@ -241,6 +241,10 @@ body.fullscreen-page #footer {
   .card {
     padding: 16px;
   }
+
+  body.fullscreen-page #footer {
+    display: none !important;
+  }
 }
 
 /* Modals */
