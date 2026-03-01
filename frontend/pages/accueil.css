@@ -1,18 +1,19 @@
-:root{
-  --rouge:#bc1515;
-  --bordeaux:#953c3c;
-  --gris-fonce:#3b3a3a;
-  --beige:#eadec8;
-  --beige-clair:#fdf7eb;
-  --bordure-or:#dec19a;
+:root {
+    --rouge: #bc1515;
+    --bordeaux: #953c3c;
+    --gris-fonce: #3b3a3a;
+    --beige: #eadec8;
+    --beige-clair: #fdf7eb;
+    --bordure-or: #dec19a;
 }
 
-body{
-  background: white; /* Modification par rapport au beige général */
-  font-family: 'Century Gothic', "Segoe UI", Arial, sans-serif;
-  margin:0;
-  padding:0;
-  color:var(--gris-fonce);
+body {
+    background: white;
+    /* Modification par rapport au beige général */
+    font-family: 'Century Gothic', "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--gris-fonce);
 }
 
 .home-container {
@@ -31,7 +32,7 @@ body{
     padding: 20px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .text-center {
@@ -41,7 +42,8 @@ body{
 .flex-row {
     display: flex;
     align-items: stretch;
-    padding: 0; /* Suppression du padding pour que l'image touche les bords */
+    padding: 0;
+    /* Suppression du padding pour que l'image touche les bords */
 }
 
 .card-content {
@@ -71,7 +73,7 @@ body{
 
 /* Bordures intérieures arrondies pour les images */
 .left-img {
-    border-radius: 16px 0 0 16px; 
+    border-radius: 16px 0 0 16px;
 }
 
 .right-img {
@@ -122,22 +124,41 @@ body{
     list-style-type: disc;
 }
 
-.logo-bottom-left{position:fixed; left:18px; bottom:14px; width:84px; height:84px; pointer-events:none; z-index:999;}
+.logo-bottom-left {
+    position: fixed;
+    left: 18px;
+    bottom: 14px;
+    width: 84px;
+    height: 84px;
+    pointer-events: none;
+    z-index: 10000;
+}
 
-@media(max-width:640px){ 
+@media(max-width:640px) {
     .flex-row {
         flex-direction: column;
     }
-    .card-image, .left-img, .right-img {
+
+    .card-image,
+    .left-img,
+    .right-img {
         width: 100%;
         border-radius: 16px 16px 0 0;
         min-height: 150px;
     }
+
     .reverse-mobile {
         flex-direction: column-reverse;
     }
+
     .reverse-mobile .card-image {
         border-radius: 16px 16px 0 0;
     }
-    .logo-bottom-left{left:10px; bottom:10px; width:64px; height:64px} 
+
+    .logo-bottom-left {
+        left: 10px;
+        bottom: 10px;
+        width: 64px;
+        height: 64px
+    }
 }
