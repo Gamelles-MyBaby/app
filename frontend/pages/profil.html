@@ -323,7 +323,7 @@
 <script type="module">
   import { userService } from './services/userService.js';
   import { babyfootService } from './services/babyfootService.js';
-  import { BASE_URL } from './services/api.js';
+  import { api, BASE_URL } from './services/api.js';
 
   (async function () {
     'use strict';
@@ -343,7 +343,7 @@
         document.getElementById('display-pseudo').textContent = profile.pseudo;
         document.getElementById('display-email').textContent = profile.email || 'Non renseigné';
         document.getElementById('display-date').textContent = profile.date_inscription ? new Date(profile.date_inscription).toLocaleDateString() : 'Inconnue';
-        document.getElementById('display-elo').textContent = profile.elo_score || 1500;
+        document.getElementById('stat-elo').textContent = profile.elo_score || 1500;
         document.getElementById('display-role').textContent = "Compte " + (profile.role || 'joueur');
 
         let avatarUrl = profile.photo_profil;
