@@ -34,7 +34,8 @@ header {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 11000;
+  /* Priorité au-dessus des éléments de la carte */
 }
 
 .brand {
@@ -221,7 +222,8 @@ body.fullscreen-page #footer {
     gap: 8px;
     border-bottom: 2px solid var(--bordeaux);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 1100;
+    z-index: 12000;
+    /* Priorité maximale pour le menu de navigation */
   }
 
   nav.show {
