@@ -37,3 +37,23 @@ exports.updateElo = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+exports.uploadAvatar = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "Aucun fichier n'a été uploadé." });
+        }
+
+        const userId = req.params.id;
+        const photoPath = `/uploads/avatars/${req.file.filename}`;
+
+        const updatedUser = await userService.updateProfilePicture(userId, photoPath);
+        res.json({
+            message: "Photo de profil mise à jour avec succès",
+            photo_profil: photoPath,
+            user: updatedUser
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
