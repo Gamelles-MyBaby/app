@@ -172,10 +172,9 @@
 </style>
 
 <script type="module">
-  import { api } from './services/api.js';
+  import { api, BASE_URL } from './services/api.js';
   import { userService } from './services/userService.js';
   import { babyfootService } from './services/babyfootService.js';
-  import { BASE_URL } from './services/api.js';
 
   // Service de match défini directement ici pour éviter les problèmes de cache
   const MatchChallengeService = {
