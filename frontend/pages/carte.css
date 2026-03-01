@@ -1,13 +1,12 @@
 /* --- CONFIGURATION GLOBALE --- */
 .map-container {
   display: flex;
-  flex: 1;
-  /* Remplace height: 85vh pour s'adapter dynamiquement entre header et footer */
+  height: calc(100vh - 120px);
+  /* Hauteur fixe pour éviter d'étirer la page */
   min-height: 500px;
   overflow: hidden;
   background: #f8f8f8;
   position: relative;
-  /* Parent de positionnement pour side-panel sur mobile */
 }
 
 /* CORRECTIF SÉCURITÉ : Annule le fond gris imposé aux images sur toute la page */
@@ -243,7 +242,8 @@
   }
 
   .side-panel.expanded {
-    height: 50vh;
+    height: 35vh;
+    /* Hauteur réduite pour bien voir la carte */
   }
 
   .drawer-handle {
