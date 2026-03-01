@@ -31,6 +31,8 @@
   flex-direction: column;
   box-shadow: 10px 0 20px rgba(0, 0, 0, 0.02);
   z-index: 10;
+  overflow: hidden;
+  /* Empêche le contenu de déborder */
 }
 
 .side-header {
@@ -242,8 +244,8 @@
   }
 
   .side-panel.expanded {
-    height: 35vh;
-    /* Hauteur réduite pour bien voir la carte */
+    height: 40vh;
+    /* Ajusté pour voir les cartes + scrollbar */
   }
 
   .drawer-handle {
@@ -257,7 +259,9 @@
   .lieux-list {
     padding-bottom: 20px;
     min-height: 0;
-    /* Important pour permettre le scroll dans un parent flex */
+    flex: 1;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   .controls {
