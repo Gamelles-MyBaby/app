@@ -370,12 +370,9 @@
 
         selectModel.onchange = () => {
           const opt = selectModel.selectedOptions[0];
-          document.getElementById('fMarque').value = opt.dataset.marque;
-          document.getElementById('fMatiere').value = opt.dataset.matiere;
-          document.getElementById('fCouleur').value = opt.dataset.couleur;
-          const [l, w] = (opt.dataset.taille || "0/0").split('/');
-          document.getElementById('fLong').value = l || "";
-          document.getElementById('fLarg').value = w || "";
+          if (!opt) return;
+          const elMarque = document.getElementById('fMarque');
+          if (elMarque) elMarque.value = opt.dataset.marque || "";
         };
         if (selectModel.onchange) selectModel.onchange();
       } catch (e) { console.error("Error loading models:", e); }
@@ -437,14 +434,12 @@
           ville: "Paris",
           id_modele: formAdd.id_modele.value,
           id_utilisateur: user.id_utilisateur || user.id,
-          xcoord: parseFloat(formAdd.xcoord.value),
-          ycoord: parseFloat(formAdd.ycoord.value),
-          taille: `${formAdd.fLong.value}/${formAdd.fLarg.value}`,
+          xcoord: parseFloat(formAdd.xcoord.value) || 0,
+          ycoord: parseFloat(formAdd.ycoord.value) || 0,
           marque: formAdd.marque.value,
-          matiere: formAdd.matiere.value,
-          couleur: formAdd.couleur.value,
           prix: formAdd.prix_select.value === 'Autre' ? formAdd.prix_custom.value : formAdd.prix_select.value
         };
+ Sands payload contains only fields present in HTML and used by backend.
 
         await babyfootService.createBabyfoot(payload);
         alert("Lieu ajouté avec succès !");
