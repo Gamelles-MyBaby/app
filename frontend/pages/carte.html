@@ -187,7 +187,7 @@
     // Toggle station visibility based on zoom
     function updateStationVisibility() {
       const zoom = map.getZoom();
-      if (zoom < 13) {
+      if (zoom < 15) {
         if (map.hasLayer(stationGroup)) map.removeLayer(stationGroup);
       } else {
         if (!map.hasLayer(stationGroup)) map.addLayer(stationGroup);
