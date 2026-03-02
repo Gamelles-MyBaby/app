@@ -439,7 +439,6 @@
           marque: formAdd.marque.value,
           prix: formAdd.prix_select.value === 'Autre' ? formAdd.prix_custom.value : formAdd.prix_select.value
         };
- Sands payload contains only fields present in HTML and used by backend.
 
         await babyfootService.createBabyfoot(payload);
         alert("Lieu ajouté avec succès !");
